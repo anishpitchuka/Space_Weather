@@ -541,10 +541,10 @@ a:hover { color: #cc0000; }
 .kp-active { color: #ff6600; font-weight: bold; }
 .kp-storm { color: #cc0000; font-weight: bold; }
 
-/* ══ PAGE SWITCHER ══ */
+/* ══ PAGES — each lives in its own HTML file, always visible ══ */
 #page-home    { display: block; }
-#page-upload  { display: none; }
-#page-confirm { display: none; }
+#page-upload  { display: block; }
+#page-confirm { display: block; }
 
 /* ── UPLOAD PAGE ── */
 #upload-hero {
