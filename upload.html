@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NRSC Space Weather – Sun-Earth Environment Monitoring</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ══════════════ HOME PAGE ══════════════ -->
+  <div id="page-upload">
+    <div id="upload-hero">
+      <div class="site-name">NRSC Space Weather · nrsc.gov.in</div>
+      <h2>Upload Your Photos</h2>
+      <div class="hero-sub">Share your sky observations — Auroras, Meteors, Solar Phenomena &amp; more</div>
+    </div>
+    <div id="page-wrap" style="max-width:1040px;">
+      <div id="form-area">
+        <div class="up-section-head">Tell us who you are:</div>
+        <div class="field-row">
+          <div class="field-label">Please enter your name:</div>
+          <div class="field-input"><input type="text" id="f-name" placeholder="Your full name"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Please enter your email address:</div>
+          <div class="field-input"><input type="email" id="f-email" placeholder="you@example.com"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">What did you see?<div class="field-hint">Ex: Auroras, a meteor, sundogs</div>
+          </div>
+          <div class="field-input"><input type="text" id="f-what" placeholder="e.g. Aurora Borealis, meteor shower">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Do you have a website with more images?<div class="field-hint">Enter the URL</div>
+          </div>
+          <div class="field-input"><input type="url" id="f-website" placeholder="https://"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Tell us more! What was it like?<div class="field-hint">Ex: These auroras were so
+              bright! Details: Nikon Coolpix, 400 ASA, 10s exposure.</div>
+          </div>
+          <div class="field-input"><textarea id="f-desc"
+              placeholder="Describe what you saw, equipment used, conditions…"></textarea></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">The date you observed the object:</div>
+          <div class="field-input">
+            <div class="date-inline">
+              <select id="f-month">
+                <option value="">Month</option>
+                <option>January</option>
+                <option>February</option>
+                <option>March</option>
+                <option>April</option>
+                <option>May</option>
+                <option>June</option>
+                <option>July</option>
+                <option>August</option>
+                <option>September</option>
+                <option>October</option>
+                <option>November</option>
+                <option>December</option>
+              </select>
+              <select id="f-day">
+                <option value="">Day</option>
+              </select>
+              <select id="f-year">
+                <option value="">Year</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="up-section-head section-gap">Tell us where you were:</div>
+        <div class="field-row">
+          <div class="field-label">Where were you?<div class="field-hint">Ex: Hyderabad, Telangana, India</div>
+          </div>
+          <div class="field-input"><input type="text" id="f-location" placeholder="City, State / Region, Country"></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Select a category which best describes this upload:</div>
+          <div class="field-input">
+            <select id="f-category">
+              <option value="">— CATEGORY —</option>
+              <option>Auroras</option>
+              <option>Meteors / Fireballs</option>
+              <option>Sunspots</option>
+              <option>Solar Flares</option>
+              <option>Sundogs / Halos</option>
+              <option>Noctilucent Clouds</option>
+              <option>Comets</option>
+              <option>Eclipses</option>
+              <option>Airglow</option>
+              <option>Lightning / Sprites</option>
+              <option>ISS / Satellite Pass</option>
+              <option>Lunar Phenomena</option>
+              <option>Planetary Conjunction</option>
+              <option>Space Weather Effects</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="up-section-head section-gap">Select your photos:</div>
+        <div class="file-upload-wrap">
+          <p>You can submit individual images up to 20MB in size. Accepted formats: JPG, PNG, GIF, TIFF.</p>
+          <div id="file-rows">
+            <div class="file-row"><input type="file" accept="image/*" class="photo-input"
+                onchange="showThumb(this)"><img class="file-thumb" alt="preview"></div>
+            <div class="file-row"><input type="file" accept="image/*" class="photo-input"
+                onchange="showThumb(this)"><img class="file-thumb" alt="preview"></div>
+            <div class="file-row"><input type="file" accept="image/*" class="photo-input"
+                onchange="showThumb(this)"><img class="file-thumb" alt="preview"></div>
+            <div class="file-row"><input type="file" accept="image/*" class="photo-input"
+                onchange="showThumb(this)"><img class="file-thumb" alt="preview"></div>
+          </div>
+        </div>
+        <button id="btn-submit" onclick="handleSubmit()">Submit</button>
+      </div><!-- /form-area -->
+    </div><!-- /page-wrap -->
+  </div><!-- /page-upload -->
+
+
+  <!-- FOOTER -->
+  <div id="footer">
+    <a href="#">Home</a> | <a href="https://spaceweathergallery2.com/">Gallery</a> | <a href="#">Newsletter</a> | <a
+      href="#">Alerts</a> | <a href="https://www.swpc.noaa.gov/">NOAA SWPC</a> | <a
+      href="https://sdo.gsfc.nasa.gov/">NASA SDO</a><br>
+    <span style="color:#777799;">&copy; 2025 National Remote Sensing Centre (NRSC), ISRO &mdash; Hyderabad, India | <a
+        href="https://www.nrsc.gov.in" style="color:#aaaaff;" target="_blank">nrsc.gov.in</a></span>
+  </div>
+
+  <!-- ══════════ JAVASCRIPT ══════════ -->
+
+
+  <script src="script.js"></script>
+</body>
+
+</html>

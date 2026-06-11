@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NRSC Space Weather – Sun-Earth Environment Monitoring</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- ══════════════ HOME PAGE ══════════════ -->
+  <div id="page-home">
+    <!-- ══════════════ NRSC HEADER ══════════════ -->
+    <div id="header">
+      <div id="header-logo">
+        <img src="https://www.nrsc.gov.in/nrscnew/assets/img/header/logo_nrsc_ed.png" alt="NRSC Logo"
+          style="height:56px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));" onerror="this.style.display='none'">
+        <div id="header-logo-text">
+          <h1>NRSC Space Weather</h1>
+          <p>National Remote Sensing Centre · ISRO · Dept. of Space, Govt. of India</p>
+        </div>
+      </div>
+      <div id="header-subscribe">
+        <div class="sub-label">Subscribe to NRSC Space Weather News</div>
+        <div>
+          <input type="email" placeholder="your@email.com">
+          <button>go!</button>
+        </div>
+      </div>
+    </div>
+    <!-- ══════════════ NAV BAR ══════════════ -->
+    <div id="nav-bar">
+      <a href="#" onclick="showPage('home');return false;">HOME</a>
+      <a href="#" onclick="showPage('upload');return false;">SUBMIT YOUR PHOTOS</a>
+      <a href="#">AURORA ALERTS</a>
+      <a href="#">CONTACT US</a>
+      <a href="#">DATA PORTAL</a>
+      <a href="#">BHUVAN</a>
+    </div>
+
+    <!-- ══════════════ PAGE BODY ══════════════ -->
+    <!-- ══════════════ PAGE BODY ══════════════ -->
+    <div id="page-wrap">
+      <div id="three-col">
+
+        <!-- ██████████ LEFT COLUMN — Current Conditions ██████████ -->
+        <div id="col-left">
+
+          <div class="cc-title">Current<br>Conditions</div>
+
+          <!-- Solar Wind -->
+          <div class="cc-section">
+            <div class="cc-section-head">Solar wind</div>
+            <div class="cc-value">speed: <b><span id="sw-speed" class="red-val">...</span></b> km/sec</div>
+            <div class="cc-value">density: <b><span id="sw-density" class="red-val">...</span></b>
+              protons/cm<sup>3</sup></div>
+            <div class="small-link">more data: <a
+                href="https://services.swpc.noaa.gov/images/ace-mag-swepam-24-hour.gif" target="_blank">ACE</a>, <a
+                href="https://www.swpc.noaa.gov/products/real-time-solar-wind" target="_blank">DSCOVR</a></div>
+            <div class="updated" id="sw-updated">Updated: --</div>
+          </div>
+
+          <hr class="divider-line">
+
+          <!-- X-Ray Flares -->
+          <div class="cc-section">
+            <div class="cc-section-head">X-ray Solar Flares</div>
+            <div class="cc-value">6-hr max: <b><span id="flare-6hr" class="red-val">...</span></b> <span
+                id="flare-6hr-time" style="font-size:10px;color:#555;"></span></div>
+            <div class="cc-value">24-hr: <b><span id="flare-24hr" class="red-val">...</span></b> <span
+                id="flare-24hr-time" style="font-size:10px;color:#555;"></span></div>
+            <div class="small-link"><a href="https://spaceweather.com/glossary/flareclasses.html"
+                target="_blank">explanation</a> | <a href="https://www.swpc.noaa.gov/products/goes-x-ray-flux"
+                target="_blank">more data</a></div>
+            <div class="updated" id="flare-updated">Updated: --</div>
+          </div>
+
+          <hr class="divider-line">
+
+          <!-- Daily Sun Image -->
+          <div class="cc-section" id="daily-sun-section">
+            <div class="cc-section-head">Daily Sun: <span id="sun-date-label">25 May 26</span></div>
+            <div class="sun-wrap" id="daily-sun-wrap">
+              <img id="sun-img" src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_HMIi.jpg"
+                alt="Daily Sun NASA SDO"
+                onerror="this.onerror=null; this.src='https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_HMIi.jpg'">
+            </div>
+            <div class="expand-row">
+              Expand: <a href="#" id="lnk-labels" onclick="setSunMode('labels');return false;">labels</a> | <a href="#"
+                id="lnk-nolabels" onclick="setSunMode('nolabels');return false;">no labels</a>
+            </div>
+            <div class="sun-caption" id="daily-sun-caption">
+              Sunspot 4446 is the formerly-giant farside sunspot first seen last week by Solar Orbiter. It has decayed
+              since then, but still looks potent. Credit: NASA/SDO
+            </div>
+            <div class="sunspot-num">Sunspot number: <span class="red-val">86</span></div>
+            <div class="sunspot-link"><a href="https://spaceweather.com/glossary/sunspotnumber.html"
+                target="_blank">What is the sunspot number?</a></div>
+            <div class="updated">Updated 25 May 2026</div>
+          </div>
+
+
+        </div><!-- /col-left -->
+
+        <!-- ██████████ CENTER COLUMN ██████████ -->
+        <div id="col-center">
+
+          <!-- Tab-style header -->
+          <div class="center-tab-header">
+            <div class="tab-whats-up">
+              <span class="tab-icon">🪐</span>
+              <span>What's up in space</span>
+            </div>
+            <div class="date-right" id="center-date">Monday, May. 25, 2026</div>
+          </div>
+
+          <div class="center-body" id="center-body">
+
+            <!-- USER SUBMITTED ARTICLE (injected after form submit) -->
+            <div id="user-article" style="display:none;"></div>
+
+            <!-- Article 1: Sunset Sky Show -->
+            <div class="article-block clearfix">
+              <div class="article-head">SUNSET SKY SHOW:</div>
+              <div class="article-text">
+                When the sun goes down tonight, step outside and look west. Venus and Jupiter are converging in the
+                twilight sky -- noticably closer together every night as they head for a spectacular conjunction on June
+                8-9. The show starts now!
+                <b>Sky maps:</b>
+                <span class="sky-links">
+                  <a href="https://spaceweather.com/images2026/22may26/skymap_25may26.png" target="_blank">May 25</a>,
+                  <a href="https://spaceweather.com/images2026/22may26/skymap_26may26.png" target="_blank">26</a>,
+                  <a href="https://spaceweather.com/images2026/22may26/skymap_27may26.png" target="_blank">27</a>,
+                  <a href="https://spaceweather.com/images2026/22may26/skymap_28may26.png" target="_blank">28</a>,
+                  <a href="https://spaceweather.com/images2026/22may26/skymap_29may26.png" target="_blank">29</a>,
+                  <a href="https://spaceweather.com/images2026/22may26/skymap_30may26.png" target="_blank">30</a>,
+                  <a href="https://spaceweather.com/images2026/22may26/skymap_31may26.png" target="_blank">31</a>.
+                </span>
+              </div>
+              <!-- Article 1 image upload slot -->
+              <div class="img-upload-slot" id="slot1" onclick="document.getElementById('file1').click()">
+                <input type="file" id="file1" accept="image/*" onchange="loadImg(this,'slot1')"
+                  onclick="event.stopPropagation()">
+                <div class="slot-placeholder" id="slot1-ph">
+                  <div class="slot-icon">🌅</div>
+                  <div>Click to upload image for this article</div>
+                  <div class="slot-label">Choose Image</div>
+                </div>
+                <img class="slot-preview" id="slot1-img" alt="Article 1 image">
+              </div>
+            </div>
+
+            <!-- Article 2: Mad Sunspot -->
+            <div class="article-block clearfix">
+              <div class="article-head">WHAT MADE THIS SUNSPOT SO MAD?</div>
+              <div class="article-text">
+                Sunspot 4446 is emerging over the sun's southeastern limb today and it looks angry. Thierry Legault
+                photographed the seething active region from Paris, France:
+              </div>
+              <!-- Article 2 image upload slot -->
+              <div class="img-upload-slot" id="slot2" onclick="document.getElementById('file2').click()">
+                <input type="file" id="file2" accept="image/*" onchange="loadImg(this,'slot2')"
+                  onclick="event.stopPropagation()">
+                <div class="slot-placeholder" id="slot2-ph">
+                  <div class="slot-icon">☀️</div>
+                  <div>Click to upload sunspot image</div>
+                  <div class="slot-label">Choose Image</div>
+                </div>
+                <img class="slot-preview" id="slot2-img" alt="Sunspot image">
+              </div>
+              <div class="article-text" style="margin-top:6px;">
+                Legault took this picture on May 24th using an H-alpha filter tuned to the glow of hydrogen plasma,
+                showing the seething magnetic canopy above the sunspot. Sunspot 4446 is the formerly-giant farside
+                sunspot first seen last week by Solar Orbiter. It has decayed since then, but its remains still look
+                potent.
+              </div>
+              <div class="article-text">
+                <b>Reversed polarity:</b> One of the sunspot groups in the region has reversed polarity — its magnetic
+                field is oriented opposite to what <a href="https://adsabs.harvard.edu/full/1925ApJ....62..270H"
+                  target="_blank">Hale's Law</a> predicts for Solar Cycle 25. Studies show about <b>3% of all
+                  sunspots</b> violate Hale's Law, and reversed polarity sunspots are <b>twice as likely</b> to develop
+                complex magnetic fields and explode. A farside X-flare could be in the offing. Stay tuned.
+              </div>
+              <div style="font-size:11px; margin-top:4px;">
+                <b>Solar flare alerts:</b> <a href="https://spaceweatheralerts.com/" target="_blank">SMS Text</a>
+              </div>
+            </div>
+
+            <hr style="border:none;border-top:1px solid #cccccc;margin:8px 0;">
+
+            <!-- INDIA MAP SECTION -->
+            <div style="margin:10px 0;">
+              <div
+                style="background:#003366;color:#fff;font-size:12px;font-weight:bold;padding:4px 8px;margin-bottom:6px;">
+                NRSC Space Weather Station Map — India
+              </div>
+              <div style="font-size:11px;color:#444;margin-bottom:6px;">
+                Click anywhere on the map to get location details.
+              </div>
+
+              <!-- Map container -->
+              <div id="india-map-wrap"
+                style="position:relative;width:100%;border:1px solid #aaa;background:#d6eaf8;overflow:hidden;cursor:crosshair;"
+                title="Click to get location info">
+                <div id="india-map-inner" style="position:relative;width:100%;padding-bottom:110%;"></div>
+              </div>
+
+              <!-- Popup -->
+              <div id="map-popup"
+                style="display:none;position:fixed;z-index:9999;background:#fff;border:2px solid #003366;border-radius:4px;box-shadow:2px 4px 12px rgba(0,0,0,0.25);padding:0;min-width:220px;font-family:Arial,sans-serif;font-size:12px;">
+                <div
+                  style="background:#003366;color:#fff;font-weight:bold;padding:5px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;">
+                  <span>📍 Location Details</span>
+                  <span onclick="document.getElementById('map-popup').style.display='none'"
+                    style="cursor:pointer;font-size:14px;line-height:1;">✕</span>
+                </div>
+                <div style="padding:10px 12px;line-height:1.9;">
+                  <div><b>Latitude:</b> &nbsp;<span id="pop-lat" style="color:#cc0000;font-weight:bold;">—</span></div>
+                  <div><b>Longitude:</b> &nbsp;<span id="pop-lon" style="color:#cc0000;font-weight:bold;">—</span></div>
+                  <div><b>Area:</b> &nbsp;<span id="pop-area" style="color:#003366;font-weight:bold;">—</span></div>
+                  <div><b>State:</b> &nbsp;<span id="pop-state" style="color:#003366;">—</span></div>
+                  <div
+                    style="margin-top:6px;padding-top:6px;border-top:1px solid #eee;font-size:10px;color:#888;font-style:italic;">
+                    More data fields coming soon...</div>
+                </div>
+              </div>
+
+            </div><!-- /india map section -->
+
+          </div><!-- /center-body -->
+
+          <!-- Leaflet CSS & JS -->
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+        </div><!-- /col-center -->
+
+        <!-- ██████████ RIGHT COLUMN ██████████ -->
+        <div id="col-right">
+
+          <!-- Archives / Time Machine -->
+          <div class="right-section-head">archives</div>
+          <div class="archives-form">
+            <select id="arc-month">
+              <option>Jan</option>
+              <option>Feb</option>
+              <option>Mar</option>
+              <option>Apr</option>
+              <option selected>May</option>
+              <option>Jun</option>
+              <option>Jul</option>
+              <option>Aug</option>
+              <option>Sep</option>
+              <option>Oct</option>
+              <option>Nov</option>
+              <option>Dec</option>
+            </select>
+            <select id="arc-day"></select>
+            <select id="arc-year"></select>
+            <button onclick="archiveGo()">view</button>
+          </div>
+
+          <!-- UPLOAD STUDY — Baby Yoda compact -->
+          <div
+            style="border:2px dashed #aaaacc;background:#f7f7fb;border-radius:4px;margin:10px 4px;padding:10px 8px;text-align:center;">
+            <div
+              style="background:#003366;color:#fff;font-size:11px;font-weight:bold;padding:3px 6px;margin:-10px -8px 8px;border-radius:2px 2px 0 0;">
+              Upload Your Study
+            </div>
+            <!-- Baby Yoda small SVG -->
+            <svg width="60" height="72" viewBox="0 0 110 130" xmlns="http://www.w3.org/2000/svg"
+              style="display:block;margin:4px auto 6px;">
+              <ellipse cx="55" cy="105" rx="32" ry="24" fill="#4a5a3a" />
+              <rect x="23" y="92" width="64" height="28" rx="8" fill="#4a5a3a" />
+              <ellipse cx="55" cy="108" rx="18" ry="16" fill="#c8b87a" />
+              <rect x="47" y="72" width="16" height="14" rx="4" fill="#7a9a6a" />
+              <ellipse cx="55" cy="58" rx="30" ry="27" fill="#7a9a6a" />
+              <ellipse cx="14" cy="52" rx="14" ry="9" fill="#7a9a6a" transform="rotate(-20 14 52)" />
+              <ellipse cx="14" cy="52" rx="9" ry="5" fill="#c8a090" transform="rotate(-20 14 52)" />
+              <ellipse cx="96" cy="52" rx="14" ry="9" fill="#7a9a6a" transform="rotate(20 96 52)" />
+              <ellipse cx="96" cy="52" rx="9" ry="5" fill="#c8a090" transform="rotate(20 96 52)" />
+              <ellipse cx="43" cy="56" rx="7" ry="8" fill="#1a1a0a" />
+              <ellipse cx="67" cy="56" rx="7" ry="8" fill="#1a1a0a" />
+              <circle cx="45" cy="54" r="2.5" fill="#fff" />
+              <circle cx="69" cy="54" r="2.5" fill="#fff" />
+              <ellipse cx="55" cy="66" rx="4" ry="2.5" fill="#5a7a5a" />
+              <circle cx="53" cy="66" r="1.2" fill="#3a5a3a" />
+              <circle cx="57" cy="66" r="1.2" fill="#3a5a3a" />
+              <path d="M48 71 Q55 76 62 71" fill="none" stroke="#3a5a3a" stroke-width="1.5" stroke-linecap="round" />
+              <path d="M42 44 Q48 41 55 43 Q62 41 68 44" fill="none" stroke="#5a7a5a" stroke-width="1" opacity="0.6" />
+              <ellipse cx="28" cy="100" rx="7" ry="5" fill="#7a9a6a" transform="rotate(-15 28 100)" />
+              <ellipse cx="82" cy="100" rx="7" ry="5" fill="#7a9a6a" transform="rotate(15 82 100)" />
+              <path d="M38 108 Q55 118 72 108" fill="none" stroke="#8a7a5a" stroke-width="2.5" stroke-linecap="round" />
+              <ellipse cx="55" cy="108" rx="17" ry="5" fill="none" stroke="#8a7a5a" stroke-width="1.5" />
+            </svg>
+            <div style="font-size:11px;font-weight:bold;color:#3366cc;margin-bottom:4px;">"Upload your study,<br>you
+              will."</div>
+            <div style="font-size:10px;color:#666;line-height:1.6;margin-bottom:8px;">
+              Reserved for your<br><b>NRSC research content</b>.<br>Drop data, charts &amp; findings here.
+            </div>
+            <button onclick="alert('Upload feature coming soon!')"
+              style="background:#003366;color:#fff;border:none;padding:5px 12px;font-size:11px;border-radius:3px;cursor:pointer;width:100%;">
+              ⬆ Upload Study
+            </button>
+            <div style="margin-top:6px;font-size:9px;color:#aaa;font-style:italic;">Placeholder · Replace when ready
+            </div>
+          </div>
+
+        </div><!-- /col-right -->
+      </div><!-- /three-col -->
+    </div><!-- /page-wrap -->
+
+
+  </div><!-- /page-home -->
+
+
+  <!-- FOOTER -->
+  <div id="footer">
+    <a href="#">Home</a> | <a href="https://spaceweathergallery2.com/">Gallery</a> | <a href="#">Newsletter</a> | <a
+      href="#">Alerts</a> | <a href="https://www.swpc.noaa.gov/">NOAA SWPC</a> | <a
+      href="https://sdo.gsfc.nasa.gov/">NASA SDO</a><br>
+    <span style="color:#777799;">&copy; 2025 National Remote Sensing Centre (NRSC), ISRO &mdash; Hyderabad, India | <a
+        href="https://www.nrsc.gov.in" style="color:#aaaaff;" target="_blank">nrsc.gov.in</a></span>
+  </div>
+
+  <!-- ══════════ JAVASCRIPT ══════════ -->
+
+
+  <script src="script.js"></script>
+</body>
+
+</html>
