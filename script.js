@@ -401,88 +401,7 @@ function escHtml(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── SUBMIT HANDLER ──
-function handleSubmit(){
-  const name     = document.getElementById('f-name').value.trim();
-  const email    = document.getElementById('f-email').value.trim();
-  const what     = document.getElementById('f-what').value.trim();
-  const website  = document.getElementById('f-website').value.trim();
-  const desc     = document.getElementById('f-desc').value.trim();
-  const month    = document.getElementById('f-month').value;
-  const day      = document.getElementById('f-day').value;
-  const year     = document.getElementById('f-year').value;
-  const location = document.getElementById('f-location').value.trim();
-  const category = document.getElementById('f-category').value;
 
-  if(!name)  { alert('Please enter your name.');  return; }
-  if(!email) { alert('Please enter your email.'); return; }
-  if(!what)  { alert('Please tell us what you saw.'); return; }
-
-  const dateStr = (month&&day&&year) ? day+' '+month+' '+year : '(not specified)';
-
-  // Build summary
-  const rows=[
-    ['Name', name||'—'],['Email', email||'—'],['What was observed', what||'—'],
-    ['Website', website||'—'],['Description', desc||'—'],
-    ['Date of observation', dateStr],['Location', location||'—'],
-    ['Category', category||'—'],
-    ['Submitted at', new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'})+' IST'],
-  ];
-  const tbody=document.getElementById('summary-body');
-  tbody.innerHTML='';
-  rows.forEach(([k,v])=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML='<td>'+escHtml(k)+'</td><td>'+escHtml(v)+'</td>';
-    tbody.appendChild(tr);
-  });
-
-  // Reference
-  const el_confirm_id_val = document.getElementById('confirm-id-val'); if (el_confirm_id_val) el_confirm_id_val.textContent='REF# '+genRef();
-
-  // Photo display
-  const allInputs=document.querySelectorAll('.photo-input');
-  const photoArea=document.getElementById('confirm-photo-area');
-  photoArea.innerHTML='';
-  const files=[];
-  allInputs.forEach(inp=>{if(inp.files&&inp.files[0])files.push(inp.files[0]);});
-
-  if(files.length===0){
-    photoArea.innerHTML='<div style="font-size:11px;color:#5a6a88;padding:10px;background:#fff;border:1px dashed #b0bcd4;border-radius:4px;margin-bottom:14px;">No photos were attached to this submission.</div>';
-  } else {
-    const grid=document.createElement('div');
-    grid.className='photo-grid';
-    // First image gets a large display
-    const firstFile=files[0];
-    const bigWrap=document.createElement('div');
-    bigWrap.className='submitted-img-wrap';
-    const bigImg=document.createElement('img');
-    bigImg.alt=firstFile.name;
-    const caption=document.createElement('div');
-    caption.className='img-caption';
-    caption.textContent='📷 '+firstFile.name+' · '+what+(location?' · '+location:'')+(dateStr!=='(not specified)'?' · '+dateStr:'');
-    const r0=new FileReader();
-    r0.onload=e=>{bigImg.src=e.target.result;};
-    r0.readAsDataURL(firstFile);
-    bigWrap.appendChild(bigImg);
-    bigWrap.appendChild(caption);
-    photoArea.appendChild(bigWrap);
-
-    // All photos as thumbnails
-    files.forEach(file=>{
-      const card=document.createElement('div');
-      card.className='photo-card';
-      const img=document.createElement('img'); img.alt=file.name;
-      const nameDiv=document.createElement('div'); nameDiv.className='pname'; nameDiv.textContent=file.name;
-      const r=new FileReader();
-      r.onload=e=>{img.src=e.target.result;};
-      r.readAsDataURL(file);
-      card.appendChild(img); card.appendChild(nameDiv); grid.appendChild(card);
-    });
-    photoArea.appendChild(grid);
-  }
-
-  showPage('confirm');
-}
 
 // ── RESET FORM ──
 function resetUploadForm(){
@@ -577,9 +496,7 @@ function injectIntoDashboard(data) {
   }
 }
 
-// ══ Override handleSubmit to also update dashboard ══
-const _origHandleSubmit = handleSubmit;
-handleSubmit = function() {
+function handleSubmit() {
   const name     = document.getElementById('f-name').value.trim();
   const email    = document.getElementById('f-email').value.trim();
   const what     = document.getElementById('f-what').value.trim();
@@ -592,15 +509,24 @@ handleSubmit = function() {
   const category = document.getElementById('f-category').value;
 
   if (!name)  { alert('Please enter your name.');  return; }
-  if (!email) { alert('Please enter your email.'); return; }
+  if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
   if (!what)  { alert('Please tell us what you saw.'); return; }
-
-  const dateStr = (month && day && year) ? day + ' ' + month + ' ' + year : '(not specified)';
+  if (!website) { alert('Please enter your website URL.'); return; }
+  if (!desc)  { alert('Please tell us more about what it was like (description).'); return; }
+  if (!month) { alert('Please select the month of observation.'); return; }
+  if (!day)   { alert('Please select the day of observation.'); return; }
+  if (!year)  { alert('Please select the year of observation.'); return; }
+  if (!location) { alert('Please enter where you observed the object (location).'); return; }
+  if (!category) { alert('Please select a category.'); return; }
 
   // Gather first uploaded image
   const allInputs = document.querySelectorAll('.photo-input');
   const files = [];
   allInputs.forEach(inp => { if (inp.files && inp.files[0]) files.push(inp.files[0]); });
+
+  if (files.length === 0) { alert('Please upload at least one photo.'); return; }
+
+  const dateStr = day + ' ' + month + ' ' + year;
 
   const submissionData = { name, email, what, website, desc, dateStr, location, category, firstImageSrc: null };
 
@@ -609,17 +535,13 @@ handleSubmit = function() {
     window.location.href = 'confirm.html';
   }
 
-  if (files.length > 0) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      submissionData.firstImageSrc = e.target.result;
-      finalize();
-    };
-    reader.readAsDataURL(files[0]);
-  } else {
+  const reader = new FileReader();
+  reader.onload = e => {
+    submissionData.firstImageSrc = e.target.result;
     finalize();
-  }
-};
+  };
+  reader.readAsDataURL(files[0]);
+}
 
 // Article image upload handler
 function loadImg(input, slotId) {
