@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap');
+
+/* ── RESET & BASE ── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  background: #c8c8c8;
+  color: #000000;
+}
+a { color: #0000cc; text-decoration: underline; }
+a:hover { color: #cc0000; }
+
+/* ── ALWAYS SHOW THIS PAGE ── */
+#page-confirm { display: block; }
+
+/* ── PAGE WRAPPER ── */
+#page-wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  background: #ffffff;
+  width: 100%;
+}
+
+/* ── HERO BANNER ── */
+#upload-hero {
+  background: linear-gradient(135deg, #060e20 0%, #0d2d6b 45%, #1a3a8a 75%, #2a1060 100%);
+  text-align: center;
+  padding: 30px 20px 24px;
+  position: relative;
+  overflow: hidden;
+}
+#upload-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(232, 57, 14, .15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(13, 45, 107, .4) 0%, transparent 60%);
+  pointer-events: none;
+}
+#upload-hero .site-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  color: #a0bce0;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  position: relative;
+}
+#upload-hero h2 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 42px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-shadow: 0 0 40px rgba(13, 45, 107, .8), 0 2px 4px rgba(0, 0, 0, .5);
+  position: relative;
+}
+#upload-hero .hero-sub {
+  font-size: 11px;
+  color: #7090b8;
+  margin-top: 4px;
+  font-style: italic;
+  position: relative;
+}
+
+/* ── CONFIRM AREA ── */
+#confirm-area { padding: 26px 30px 34px; background: #f2f5fb; }
+
+.confirm-header-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #0a1628 0%, #0d2d6b 100%);
+  border-radius: 6px;
+  border-left: 4px solid #f5a623;
+}
+.confirm-icon { font-size: 34px; }
+.confirm-header-box h3 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 21px;
+  color: #fff;
+  letter-spacing: 1px;
+}
+.confirm-header-box p { font-size: 11px; color: #a0bce0; margin-top: 2px; }
+
+.confirm-id {
+  display: inline-block;
+  background: #f5a623;
+  color: #0a1628;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+
+/* ── SUMMARY TABLE ── */
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 18px;
+  background: #fff;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(13, 45, 107, .08);
+}
+.summary-table caption {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0d2d6b;
+  text-align: left;
+  padding: 9px 14px 5px;
+  border-bottom: 1px solid #b0bcd4;
+  caption-side: top;
+}
+.summary-table tr:nth-child(even) td { background: #f5f8ff; }
+.summary-table td {
+  padding: 7px 14px;
+  font-size: 12px;
+  border-bottom: 1px solid #e8eef8;
+  vertical-align: top;
+}
+.summary-table td:first-child {
+  font-weight: 600;
+  color: #5a6a88;
+  width: 175px;
+  white-space: nowrap;
+}
+
+/* ── SUBMITTED PHOTOS ── */
+.submitted-img-wrap {
+  background: #0a0a1a;
+  border: 1px solid #334;
+  text-align: center;
+  padding: 6px;
+  margin-bottom: 14px;
+  border-radius: 4px;
+}
+.submitted-img-wrap img {
+  max-width: 100%;
+  max-height: 320px;
+  display: block;
+  margin: 0 auto;
+  border-radius: 2px;
+}
+.submitted-img-wrap .img-caption { font-size: 10px; color: #8a9ab8; margin-top: 5px; }
+
+.photo-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.photo-card {
+  background: #fff;
+  border: 1px solid #b0bcd4;
+  border-radius: 4px;
+  overflow: hidden;
+  width: 120px;
+  box-shadow: 0 2px 6px rgba(13, 45, 107, .08);
+}
+.photo-card img { width: 100%; height: 84px; object-fit: cover; display: block; }
+.photo-card .pname {
+  font-size: 9px;
+  color: #5a6a88;
+  padding: 3px 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── ACTION BUTTONS ── */
+.home-btn {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 9px 26px;
+  background: transparent;
+  color: #0d2d6b;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  border: 2px solid #0d2d6b;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background .2s, color .2s;
+  margin-right: 10px;
+}
+.home-btn:hover { background: #0d2d6b; color: #fff; }
+
+.submit-another-btn {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 9px 26px;
+  background: linear-gradient(135deg, #0d2d6b 0%, #1a3a8a 100%);
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.submit-another-btn:hover { background: linear-gradient(135deg, #1a3a8a 0%, #2550aa 100%); }
+
+/* ── FOOTER ── */
+#footer {
+  background: #333366;
+  color: #aaaacc;
+  text-align: center;
+  padding: 8px;
+  font-size: 10px;
+  border-top: 3px solid #cc0000;
+}
+#footer a { color: #aaaaff; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  #upload-hero h2 { font-size: 28px; }
+  #confirm-area { padding: 16px 14px 24px; }
+  .confirm-header-box { flex-direction: column; align-items: flex-start; }
+  .summary-table td:first-child { width: auto; white-space: normal; }
+}
