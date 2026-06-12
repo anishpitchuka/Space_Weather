@@ -70,6 +70,40 @@
 
           <hr class="divider-line">
 
+          <!-- KP Index -->
+          <div class="cc-section">
+            <div class="cc-section-head">Planetary K-index (KP)</div>
+            <div id="kp-gauge-wrap">
+              <div id="kp-bar-track">
+                <div id="kp-bar-fill"></div>
+                <div id="kp-bar-needle"></div>
+              </div>
+              <div id="kp-scale-labels">
+                <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+                <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+              </div>
+              <div id="kp-scale-zones">
+                <span class="kpz kpz-quiet">Quiet</span>
+                <span class="kpz kpz-unsettled">Unsettled</span>
+                <span class="kpz kpz-storm">Storm</span>
+              </div>
+            </div>
+            <div class="cc-value" style="margin-top:6px;">
+              Now: <b><span id="kp-now" class="red-val">...</span></b>
+              &nbsp;<span id="kp-label"></span>
+            </div>
+            <div class="cc-value">
+              24-hr max: <b><span id="kp-max" class="red-val">...</span></b>
+              &nbsp;<span id="kp-max-label"></span>
+            </div>
+            <div class="small-link">
+              <a href="https://www.swpc.noaa.gov/products/planetary-k-index" target="_blank">more data</a> |
+              <a href="https://www.swpc.noaa.gov/noaa-scales-explanation" target="_blank">storm scale</a>
+            </div>
+          </div>
+
+          <hr class="divider-line">
+
           <!-- X-Ray Flares -->
           <div class="cc-section">
             <div class="cc-section-head">X-ray Solar Flares</div>

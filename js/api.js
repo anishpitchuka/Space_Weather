@@ -97,15 +97,17 @@ async function loadKp() {
     const r      = await fetchWithTimeout('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json');
     const d      = await r.json();
     const latest = d[d.length - 1];
-    const kp     = parseFloat(latest[1]);
+    const kp     = parseFloat(latest.Kp ?? latest[1]);
     const el_kp_now       = document.getElementById('kp-now');       if (el_kp_now)       el_kp_now.textContent     = isNaN(kp) ? 'N/A' : kp.toFixed(2);
     const el_kp_label     = document.getElementById('kp-label');     if (el_kp_label)     el_kp_label.innerHTML     = kpLabel(kp);
     drawKpBars(kp);
     const now = Date.now();
     let max24 = 0;
     for (let i = d.length - 1; i >= 1; i--) {
-      if (now - new Date(d[i][0]).getTime() > 86400000) break;
-      const v = parseFloat(d[i][1]);
+      const entry = d[i];
+      const entryTime = new Date(entry.time_tag ?? entry[0]).getTime();
+      if (now - entryTime > 86400000) break;
+      const v = parseFloat(entry.Kp ?? entry[1]);
       if (!isNaN(v) && v > max24) max24 = v;
     }
     const el_kp_max       = document.getElementById('kp-max');       if (el_kp_max)       el_kp_max.textContent     = max24.toFixed(2);
