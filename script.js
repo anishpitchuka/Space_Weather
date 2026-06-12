@@ -418,36 +418,52 @@ function resetUploadForm(){
 // ══════════════════════════════════════════════════
 // INJECT SUBMITTED DATA INTO HOME DASHBOARD
 // ══════════════════════════════════════════════════
-function injectIntoDashboard(data) {
-  // Inject user submission as an article in the center column
+function injectIntoDashboard(rows) {
   const userArticleDiv = document.getElementById('user-article');
-  if (userArticleDiv) {
+  if (!userArticleDiv) return;
+
+  userArticleDiv.innerHTML = '';
+
+  rows.forEach(function(row) {
+    const name     = row.name || '';
+    const what     = row.what_observed || 'Space Weather Observation';
+    const location = row.location || '';
+    const dateStr  = row.observation_date || '';
+    const category = row.category || '';
+    const desc     = row.description || '';
+    const website  = row.website || '';
+    const photoUrl = (row.photo_urls && row.photo_urls[0]) ? row.photo_urls[0] : '';
+
     const metaParts = [];
-    if (data.name)     metaParts.push('📷 ' + escHtml(data.name));
-    if (data.location) metaParts.push('📍 ' + escHtml(data.location));
-    if (data.dateStr && data.dateStr !== '(not specified)') metaParts.push('📅 ' + escHtml(data.dateStr));
-    if (data.category) metaParts.push('🏷️ ' + escHtml(data.category));
+    if (name)     metaParts.push('📷 ' + escHtml(name));
+    if (location) metaParts.push('📍 ' + escHtml(location));
+    if (dateStr)  metaParts.push('📅 ' + escHtml(dateStr));
+    if (category) metaParts.push('🏷️ ' + escHtml(category));
 
-    const imgHtml = data.firstImageSrc
-      ? '<img class="user-article-img" src="' + data.firstImageSrc + '" alt="' + escHtml(data.what) + '">'
+    const imgHtml = photoUrl
+      ? '<img class="user-article-img" src="' + escHtml(photoUrl) + '" alt="' + escHtml(what) + '">'
       : '';
 
-    const websiteHtml = data.website
-      ? '<div style="font-size:11px;margin-top:5px;"><b>More images:</b> <a href="' + escHtml(data.website) + '" target="_blank">' + escHtml(data.website) + '</a></div>'
+    const websiteHtml = website
+      ? '<div style="font-size:11px;margin-top:5px;"><b>More images:</b> <a href="' + escHtml(website) + '" target="_blank">' + escHtml(website) + '</a></div>'
       : '';
 
-    userArticleDiv.innerHTML =
+    const card = document.createElement('div');
+    card.style.marginBottom = '18px';
+    card.innerHTML =
       '<div class="user-article-badge">🛰️ NRSC Space Weather &nbsp;·&nbsp; READER OBSERVATION</div>' +
       '<div class="user-article-inner">' +
-        '<div class="user-article-head">' + escHtml((data.what || 'SPACE WEATHER OBSERVATION').toUpperCase()) + ':</div>' +
+        '<div class="user-article-head">' + escHtml(what.toUpperCase()) + ':</div>' +
         '<div class="user-article-meta">' + metaParts.join(' &nbsp;|&nbsp; ') + '</div>' +
         imgHtml +
-        (data.desc ? '<div class="user-article-desc">' + escHtml(data.desc) + '</div>' : '') +
+        (desc ? '<div class="user-article-desc">' + escHtml(desc) + '</div>' : '') +
         websiteHtml +
       '</div>';
 
-    userArticleDiv.style.display = 'block';
-  }
+    userArticleDiv.appendChild(card);
+  });
+
+  userArticleDiv.style.display = 'block';
 }
 
 async function handleSubmit() {
@@ -535,6 +551,7 @@ async function handleSubmit() {
     return;
   }
 
+  localStorage.removeItem('sw_upload_draft');
   localStorage.setItem('sw_submission', JSON.stringify(
     { name, email, what, website, desc, dateStr, location, category, firstImageSrc, photoUrls }
   ));
@@ -562,6 +579,36 @@ function loadImg(input, slotId) {
 window.addEventListener('DOMContentLoaded', () => {
   const dateInput = document.getElementById('f-date');
   if (dateInput) dateInput.max = new Date().toISOString().split('T')[0];
+
+  // ── Form persistence: restore saved draft on upload page ──
+  const DRAFT_KEY = 'sw_upload_draft';
+  const formFields = ['f-name', 'f-email', 'f-what', 'f-website', 'f-desc', 'f-date', 'f-location', 'f-category'];
+  const isUploadPage = window.location.pathname.includes('upload.html');
+
+  if (isUploadPage) {
+    const saved = localStorage.getItem(DRAFT_KEY);
+    if (saved) {
+      try {
+        const draft = JSON.parse(saved);
+        formFields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el && draft[id]) el.value = draft[id];
+        });
+      } catch(e) {}
+    }
+    formFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', () => {
+        const draft = {};
+        formFields.forEach(fid => {
+          const fel = document.getElementById(fid);
+          if (fel) draft[fid] = fel.value;
+        });
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      });
+    });
+  }
 
   const dayEl = document.getElementById('f-day');
   if (dayEl) {
@@ -617,7 +664,22 @@ window.addEventListener('DOMContentLoaded', () => {
     if (confirmIdVal) confirmIdVal.textContent = 'REF# ' + genRef();
   }
 
-  if (isHomePage && submissionData) {
-    injectIntoDashboard(submissionData);
+  if (isHomePage) {
+    const sb = (typeof supabase !== 'undefined')
+      ? supabase.createClient(
+          'https://tkwktiuqbafddghceyue.supabase.co',
+          'sb_publishable_8S0mPmwjshXTiYS7tgjk5A_WLCVeiJE'
+        )
+      : null;
+    if (sb) {
+      sb.from('submissions')
+        .select('*')
+        .order('submitted_at', { ascending: false })
+        .limit(5)
+        .then(({ data, error }) => {
+          if (error || !data || data.length === 0) return;
+          injectIntoDashboard(data);
+        });
+    }
   }
 });

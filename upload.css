@@ -39,6 +39,25 @@ a:hover { color: #cc0000; }
     radial-gradient(ellipse at 80% 20%, rgba(13, 45, 107, .4) 0%, transparent 60%);
   pointer-events: none;
 }
+#hero-home-btn {
+  position: absolute;
+  top: 14px;
+  left: 18px;
+  color: #a0bce0;
+  text-decoration: none;
+  font-size: 12px;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 1px;
+  border: 1px solid rgba(160,188,224,0.4);
+  padding: 4px 10px;
+  border-radius: 3px;
+  transition: background 0.2s, color 0.2s;
+  z-index: 2;
+}
+#hero-home-btn:hover {
+  background: rgba(160,188,224,0.15);
+  color: #ffffff;
+}
 #upload-hero .site-name {
   font-family: 'Rajdhani', sans-serif;
   font-size: 11px;
