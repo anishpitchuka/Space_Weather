@@ -580,35 +580,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const dateInput = document.getElementById('f-date');
   if (dateInput) dateInput.max = new Date().toISOString().split('T')[0];
 
-  // ── Form persistence: restore saved draft on upload page ──
-  const DRAFT_KEY = 'sw_upload_draft';
-  const formFields = ['f-name', 'f-email', 'f-what', 'f-website', 'f-desc', 'f-date', 'f-location', 'f-category'];
-  const isUploadPage = window.location.pathname.includes('upload.html');
-
-  if (isUploadPage) {
-    const saved = localStorage.getItem(DRAFT_KEY);
-    if (saved) {
-      try {
-        const draft = JSON.parse(saved);
-        formFields.forEach(id => {
-          const el = document.getElementById(id);
-          if (el && draft[id]) el.value = draft[id];
-        });
-      } catch(e) {}
-    }
-    formFields.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.addEventListener('input', () => {
-        const draft = {};
-        formFields.forEach(fid => {
-          const fel = document.getElementById(fid);
-          if (fel) draft[fid] = fel.value;
-        });
-        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-      });
-    });
-  }
 
   const dayEl = document.getElementById('f-day');
   if (dayEl) {

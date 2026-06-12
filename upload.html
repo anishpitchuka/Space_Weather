@@ -116,6 +116,43 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
+  <script>
+    (function () {
+      var DRAFT_KEY = 'sw_upload_draft';
+      var fields = ['f-name', 'f-email', 'f-what', 'f-website', 'f-desc', 'f-date', 'f-location', 'f-category'];
+
+      function saveDraft() {
+        var draft = {};
+        fields.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) draft[id] = el.value;
+        });
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      }
+
+      function restoreDraft() {
+        try {
+          var saved = localStorage.getItem(DRAFT_KEY);
+          if (!saved) return;
+          var draft = JSON.parse(saved);
+          fields.forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el && draft[id] !== undefined) el.value = draft[id];
+          });
+        } catch (e) {}
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+        restoreDraft();
+        fields.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener('input', saveDraft);
+          el.addEventListener('change', saveDraft);
+        });
+      });
+    })();
+  </script>
 </body>
 
 </html>
