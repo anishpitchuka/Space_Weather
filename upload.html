@@ -49,29 +49,7 @@
         <div class="field-row">
           <div class="field-label">The date you observed the object:</div>
           <div class="field-input">
-            <div class="date-inline">
-              <select id="f-month">
-                <option value="">Month</option>
-                <option>January</option>
-                <option>February</option>
-                <option>March</option>
-                <option>April</option>
-                <option>May</option>
-                <option>June</option>
-                <option>July</option>
-                <option>August</option>
-                <option>September</option>
-                <option>October</option>
-                <option>November</option>
-                <option>December</option>
-              </select>
-              <select id="f-day">
-                <option value="">Day</option>
-              </select>
-              <select id="f-year">
-                <option value="">Year</option>
-              </select>
-            </div>
+            <input type="date" id="f-date" max="">
           </div>
         </div>
         <div class="up-section-head section-gap">Tell us where you were:</div>
@@ -135,6 +113,7 @@
   <!-- ══════════ JAVASCRIPT ══════════ -->
 
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 
