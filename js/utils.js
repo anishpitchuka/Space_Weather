@@ -40,18 +40,12 @@ function kpLabel(v) {
 }
 
 function drawKpBars(kp) {
-  const wrap = document.getElementById('kp-bars');
-  if (!wrap) return;
-  wrap.innerHTML = '';
-  for (let i = 0; i < 9; i++) {
-    const bar = document.createElement('div');
-    bar.className = 'kp-bar';
-    const lit = i < Math.round(kp);
-    bar.classList.add(lit ? 'lit' : 'unlit');
-    if (i >= 5 && lit) bar.classList.add('storm');
-    else if (i >= 3 && lit) bar.classList.add('active');
-    wrap.appendChild(bar);
-  }
+  const fill   = document.getElementById('kp-bar-fill');
+  const needle = document.getElementById('kp-bar-needle');
+  if (!fill || !needle) return;
+  const pct = Math.min(Math.max(kp / 9, 0), 1) * 100;
+  fill.style.width    = pct + '%';
+  needle.style.left   = pct + '%';
 }
 
 function showPage(name) {

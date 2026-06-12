@@ -133,10 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
   setInterval(function () { loadSolarWind(); loadIMF(); loadKp(); loadFlares(); }, 300000);
 
   if (typeof supabase !== 'undefined') {
-    const sb = supabase.createClient(
-      'https://tkwktiuqbafddghceyue.supabase.co',
-      'sb_publishable_8S0mPmwjshXTiYS7tgjk5A_WLCVeiJE'
-    );
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     sb.from('submissions')
       .select('*')
       .order('submitted_at', { ascending: false })

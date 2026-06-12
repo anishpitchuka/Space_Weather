@@ -14,10 +14,7 @@ function showThumb(input) {
 // ── Form submit ──
 async function handleSubmit() {
   const _sbClient = (typeof supabase !== 'undefined')
-    ? supabase.createClient(
-        'https://tkwktiuqbafddghceyue.supabase.co',
-        'sb_publishable_8S0mPmwjshXTiYS7tgjk5A_WLCVeiJE'
-      )
+    ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
     : null;
 
   const name     = document.getElementById('f-name').value.trim();
