@@ -370,14 +370,7 @@ function showPage(name) {
   if (name === 'confirm') window.location.href = 'confirm.html';
 }
 
-// ── Populate dropdowns ──
-(function(){
-  const dayEl = document.getElementById('f-day');
-  for(let i=1;i<=31;i++){const o=document.createElement('option');o.textContent=o.value=i;dayEl.appendChild(o);}
-  const yearEl = document.getElementById('f-year');
-  const cy = new Date().getFullYear();
-  for(let y=cy;y>=2000;y--){const o=document.createElement('option');o.textContent=o.value=y;if(y===cy)o.selected=true;yearEl.appendChild(o);}
-})();
+// ── Populate dropdowns — moved into DOMContentLoaded so elements are guaranteed to exist ──
 
 // ── Thumbnail preview ──
 function showThumb(input){
@@ -426,46 +419,7 @@ function resetUploadForm(){
 // INJECT SUBMITTED DATA INTO HOME DASHBOARD
 // ══════════════════════════════════════════════════
 function injectIntoDashboard(data) {
-  // ── 1. Replace Daily Sun image in left column ──
-  const sunWrap = document.getElementById('daily-sun-wrap');
-  if (sunWrap && data.firstImageSrc) {
-    // Replace the img src
-    const sunImg = document.getElementById('sun-img');
-    if (sunImg) {
-      sunImg.src = data.firstImageSrc;
-      sunImg.alt = data.what || 'User submitted sun image';
-      sunImg.onerror = null;
-    }
-    // Update caption
-    const caption = document.getElementById('daily-sun-caption');
-    if (caption) {
-      caption.innerHTML =
-        '📷 <b>' + escHtml(data.what) + '</b> — submitted by ' + escHtml(data.name) +
-        (data.location ? ' from ' + escHtml(data.location) : '') +
-        (data.dateStr && data.dateStr !== '(not specified)' ? ' on ' + escHtml(data.dateStr) : '') +
-        '. <span style="color:#0d2d6b;font-style:italic;">User observation via NRSC Space Weather.</span>';
-    }
-    // Update sun date label
-    const dateLabel = document.getElementById('sun-date-label');
-    if (dateLabel && data.dateStr && data.dateStr !== '(not specified)') {
-      dateLabel.textContent = data.dateStr;
-    }
-  }
-
-  // ── 2. Replace sunspot Hα image in center if category matches ──
-  const haWrap = document.getElementById('sunspot-ha-wrap');
-  if (haWrap && data.firstImageSrc &&
-      (data.category === 'Sunspots' || data.category === 'Solar Flares' || !data.category)) {
-    haWrap.innerHTML =
-      '<img src="' + data.firstImageSrc + '" alt="' + escHtml(data.what) + '" ' +
-      'style="width:100%;max-height:220px;object-fit:contain;background:#050510;display:block;">' +
-      '<div style="position:absolute;bottom:4px;right:4px;font-size:9px;color:#888;">' +
-        escHtml(data.name) + (data.location ? ' · ' + escHtml(data.location) : '') +
-      '</div>';
-    haWrap.style.position = 'relative';
-  }
-
-  // ── 3. Inject user article at top of center column ──
+  // Inject user submission as an article in the center column
   const userArticleDiv = document.getElementById('user-article');
   if (userArticleDiv) {
     const metaParts = [];
@@ -496,51 +450,95 @@ function injectIntoDashboard(data) {
   }
 }
 
-function handleSubmit() {
+async function handleSubmit() {
+  const _sbClient = (typeof supabase !== 'undefined')
+    ? supabase.createClient(
+        'https://tkwktiuqbafddghceyue.supabase.co',
+        'sb_publishable_8S0mPmwjshXTiYS7tgjk5A_WLCVeiJE'
+      )
+    : null;
   const name     = document.getElementById('f-name').value.trim();
   const email    = document.getElementById('f-email').value.trim();
   const what     = document.getElementById('f-what').value.trim();
   const website  = document.getElementById('f-website').value.trim();
   const desc     = document.getElementById('f-desc').value.trim();
-  const month    = document.getElementById('f-month').value;
-  const day      = document.getElementById('f-day').value;
-  const year     = document.getElementById('f-year').value;
+  const dateVal  = document.getElementById('f-date').value;
   const location = document.getElementById('f-location').value.trim();
   const category = document.getElementById('f-category').value;
 
-  if (!name)  { alert('Please enter your name.');  return; }
+  if (!name)     { alert('Please enter your name.');  return; }
   if (!email || !email.includes('@')) { alert('Please enter a valid email address.'); return; }
-  if (!what)  { alert('Please tell us what you saw.'); return; }
-  if (!website) { alert('Please enter your website URL.'); return; }
-  if (!desc)  { alert('Please tell us more about what it was like (description).'); return; }
-  if (!month) { alert('Please select the month of observation.'); return; }
-  if (!day)   { alert('Please select the day of observation.'); return; }
-  if (!year)  { alert('Please select the year of observation.'); return; }
+  if (!what)     { alert('Please tell us what you saw.'); return; }
+  if (!desc)     { alert('Please tell us more about what it was like (description).'); return; }
+  if (!dateVal)  { alert('Please select the date of observation.'); return; }
   if (!location) { alert('Please enter where you observed the object (location).'); return; }
   if (!category) { alert('Please select a category.'); return; }
 
-  // Gather first uploaded image
   const allInputs = document.querySelectorAll('.photo-input');
   const files = [];
   allInputs.forEach(inp => { if (inp.files && inp.files[0]) files.push(inp.files[0]); });
-
   if (files.length === 0) { alert('Please upload at least one photo.'); return; }
 
-  const dateStr = day + ' ' + month + ' ' + year;
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Uploading…';
 
-  const submissionData = { name, email, what, website, desc, dateStr, location, category, firstImageSrc: null };
+  const dateStr = new Date(dateVal).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  let photoUrls = [];
+  let firstImageSrc = null;
 
-  function finalize() {
-    localStorage.setItem('sw_submission', JSON.stringify(submissionData));
-    window.location.href = 'confirm.html';
+  try {
+    if (!_sbClient) throw new Error('Supabase SDK not loaded.');
+
+    // Upload each photo to Storage
+    for (const file of files) {
+      const ext  = file.name.split('.').pop();
+      const path = `submissions/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: upErr } = await _sbClient.storage
+        .from('space-weather-photos')
+        .upload(path, file, { cacheControl: '3600', upsert: false });
+      if (upErr) throw upErr;
+
+      const { data: urlData } = _sbClient.storage
+        .from('space-weather-photos')
+        .getPublicUrl(path);
+      photoUrls.push(urlData.publicUrl);
+    }
+
+    // Insert row into submissions table
+    const { error: dbErr } = await _sbClient.from('submissions').insert({
+      name,
+      email,
+      what_observed: what,
+      website:       website || null,
+      description:   desc,
+      observation_date: dateStr,
+      location,
+      category,
+      photo_urls:    photoUrls,
+    });
+    if (dbErr) throw dbErr;
+
+    // Read first image as data URL for confirm page preview
+    firstImageSrc = await new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload  = e => res(e.target.result);
+      reader.onerror = () => rej(new Error('File read failed'));
+      reader.readAsDataURL(files[0]);
+    });
+
+  } catch (err) {
+    console.error('Submission error:', err);
+    alert('Submission failed: ' + (err.message || err));
+    btn.disabled = false;
+    btn.textContent = 'Submit';
+    return;
   }
 
-  const reader = new FileReader();
-  reader.onload = e => {
-    submissionData.firstImageSrc = e.target.result;
-    finalize();
-  };
-  reader.readAsDataURL(files[0]);
+  localStorage.setItem('sw_submission', JSON.stringify(
+    { name, email, what, website, desc, dateStr, location, category, firstImageSrc, photoUrls }
+  ));
+  window.location.href = 'confirm.html';
 }
 
 // Article image upload handler
@@ -562,6 +560,19 @@ function loadImg(input, slotId) {
 
 
 window.addEventListener('DOMContentLoaded', () => {
+  const dateInput = document.getElementById('f-date');
+  if (dateInput) dateInput.max = new Date().toISOString().split('T')[0];
+
+  const dayEl = document.getElementById('f-day');
+  if (dayEl) {
+    for (let i = 1; i <= 31; i++) { const o = document.createElement('option'); o.textContent = o.value = i; dayEl.appendChild(o); }
+  }
+  const yearEl = document.getElementById('f-year');
+  if (yearEl) {
+    const cy = new Date().getFullYear();
+    for (let y = cy; y >= 2000; y--) { const o = document.createElement('option'); o.textContent = o.value = y; yearEl.appendChild(o); }
+  }
+
   const path = window.location.pathname;
   const isConfirmPage = path.includes('confirm.html');
   const isHomePage = path.includes('index.html') || path.endsWith('/');
@@ -605,7 +616,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const confirmIdVal = document.getElementById('confirm-id-val');
     if (confirmIdVal) confirmIdVal.textContent = 'REF# ' + genRef();
   }
-  
+
   if (isHomePage && submissionData) {
     injectIntoDashboard(submissionData);
   }
