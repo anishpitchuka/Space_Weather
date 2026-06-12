@@ -94,6 +94,54 @@ a:hover { color: #cc0000; }
   text-decoration: none;
 }
 
+/* ══ LIVE ALERT BANNER ══ */
+#alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.4px;
+  background: #1a4a1a;
+  color: #66ff66;
+  border-bottom: 1px solid #2a6a2a;
+  transition: background 0.5s, color 0.5s;
+  min-height: 24px;
+}
+#alert-banner.level-yellow {
+  background: #4a3a00;
+  color: #ffd700;
+  border-bottom-color: #6a5a00;
+}
+#alert-banner.level-orange {
+  background: #4a2000;
+  color: #ff9933;
+  border-bottom-color: #6a3a00;
+}
+#alert-banner.level-red {
+  background: #3a0000;
+  color: #ff4444;
+  border-bottom-color: #6a0000;
+}
+#alert-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+  animation: alertpulse 2s infinite;
+}
+@keyframes alertpulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+#alert-detail {
+  margin-left: 6px;
+  font-weight: normal;
+  opacity: 0.85;
+}
+
 /* ══ OUTER WRAPPER ══ */
 #page-wrap {
   max-width: 1040px;

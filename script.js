@@ -162,6 +162,69 @@ function utcTime(isoStr) {
   } catch(e) { return ''; }
 }
 
+// ── LIVE ALERT BANNER ────────────────────────────────────────────
+var _alertState = { kp: 0, flareFlux: 0 };
+
+function updateAlertBanner() {
+  var banner = document.getElementById('alert-banner');
+  var text   = document.getElementById('alert-text');
+  var detail = document.getElementById('alert-detail');
+  if (!banner || !text || !detail) return;
+
+  var kp   = _alertState.kp;
+  var flux = _alertState.flareFlux;
+
+  // Determine geomagnetic storm level from KP
+  var gLevel = 0;
+  if (kp >= 9) gLevel = 5;
+  else if (kp >= 8) gLevel = 4;
+  else if (kp >= 7) gLevel = 3;
+  else if (kp >= 6) gLevel = 2;
+  else if (kp >= 5) gLevel = 1;
+
+  // Determine flare class label
+  function flareLabel(f) {
+    if (f >= 1e-3) return 'X' + (f / 1e-4).toFixed(0);
+    if (f >= 1e-4) return 'X' + (f / 1e-4).toFixed(1);
+    if (f >= 1e-5) return 'M' + (f / 1e-5).toFixed(1);
+    if (f >= 1e-6) return 'C' + (f / 1e-6).toFixed(1);
+    if (f >= 1e-7) return 'B' + (f / 1e-7).toFixed(1);
+    return 'A';
+  }
+  var flareStr = flareLabel(flux);
+  var flareLevel = flux >= 1e-4 ? 3 : flux >= 1e-5 ? 2 : flux >= 1e-6 ? 1 : 0;
+
+  var maxLevel = Math.max(gLevel, flareLevel);
+
+  banner.className = '';
+  if (maxLevel >= 3)      banner.classList.add('level-red');
+  else if (maxLevel === 2) banner.classList.add('level-orange');
+  else if (maxLevel === 1) banner.classList.add('level-yellow');
+
+  var links = {
+    storm:  'https://www.swpc.noaa.gov/noaa-scales-explanation',
+    flare:  'https://spaceweather.com/glossary/flareclasses.html',
+    kp:     'https://www.swpc.noaa.gov/products/planetary-k-index',
+    calm:   'https://www.swpc.noaa.gov/products/real-time-solar-wind'
+  };
+
+  function makeLink(href, label) {
+    return ' <a href="' + href + '" target="_blank" style="color:inherit;opacity:0.7;font-size:10px;font-weight:normal;text-decoration:underline;white-space:nowrap;">[' + label + ']</a>';
+  }
+
+  var parts = [];
+  if (gLevel >= 1) parts.push('G' + gLevel + ' Geomagnetic Storm (KP ' + kp.toFixed(0) + ')' + makeLink(links.storm, 'what is this?'));
+  if (flareLevel >= 1) parts.push(flareStr + ' Solar Flare' + makeLink(links.flare, 'what is this?'));
+
+  if (parts.length === 0) {
+    text.innerHTML = '● Space weather conditions are currently calm.' + makeLink(links.calm, 'learn more');
+    detail.innerHTML = 'KP ' + kp.toFixed(0) + makeLink(links.kp, 'about KP') + ' &nbsp;·&nbsp; ' + flareStr + ' flare activity' + makeLink(links.flare, 'about flares');
+  } else {
+    text.innerHTML  = '⚠ ACTIVE ALERT: ' + parts.join(' &nbsp;·&nbsp; ');
+    detail.textContent = '';
+  }
+}
+
 // ── FETCH WITH TIMEOUT — stops tab spinner from hanging API calls ──
 function fetchWithTimeout(url) {
   var ctrl = new AbortController();
@@ -224,6 +287,8 @@ async function loadKp() {
     }
     const el_kp_max = document.getElementById('kp-max'); if (el_kp_max) el_kp_max.textContent = max24.toFixed(2);
     const el_kp_max_label = document.getElementById('kp-max-label'); if (el_kp_max_label) el_kp_max_label.innerHTML = kpLabel(max24);
+    _alertState.kp = isNaN(kp) ? 0 : kp;
+    updateAlertBanner();
   } catch(e) {
     const el_kp_now = document.getElementById('kp-now'); if (el_kp_now) el_kp_now.textContent = '---';
     const el_kp_max = document.getElementById('kp-max'); if (el_kp_max) el_kp_max.textContent = '---';
@@ -251,6 +316,8 @@ async function loadFlares() {
     const el_flare_6hr_time = document.getElementById('flare-6hr-time'); if (el_flare_6hr_time) el_flare_6hr_time.textContent  = time6  ? utcTime(time6)  : '';
     const el_flare_24hr_time = document.getElementById('flare-24hr-time'); if (el_flare_24hr_time) el_flare_24hr_time.textContent = time24 ? utcTime(time24) : '';
     const el_flare_updated = document.getElementById('flare-updated'); if (el_flare_updated) el_flare_updated.textContent   = 'Updated: Today at: ' + new Date().toUTCString().slice(17,22) + ' UT';
+    _alertState.flareFlux = max24;
+    updateAlertBanner();
   } catch(e) {
     const el_flare_6hr = document.getElementById('flare-6hr'); if (el_flare_6hr) el_flare_6hr.textContent  = '---';
     const el_flare_24hr = document.getElementById('flare-24hr'); if (el_flare_24hr) el_flare_24hr.textContent = '---';
@@ -354,13 +421,16 @@ function archiveGo() {
   alert('Loading archived space weather data for ' + m + ' ' + d + ', ' + y + '.\n\nIn a full production environment, this would load the historical SpaceWeather.com page for that date from the archive database.');
 }
 
-// ── INIT ──
-loadSolarWind();
-loadIMF();
-loadKp();
-loadFlares();
-loadAsteroids();
-setInterval(() => { loadSolarWind(); loadIMF(); loadKp(); loadFlares(); }, 300000);
+// ── INIT — deferred until DOM is ready so banner elements exist ──
+document.addEventListener('DOMContentLoaded', function() {
+  updateAlertBanner();
+  loadSolarWind();
+  loadIMF();
+  loadKp();
+  loadFlares();
+  loadAsteroids();
+  setInterval(() => { loadSolarWind(); loadIMF(); loadKp(); loadFlares(); }, 300000);
+});
 
 
 // ══════════ PAGE NAVIGATION ══════════
