@@ -613,6 +613,15 @@ a:hover { color: #cc0000; }
 .cosmic-head { font-size: 12px; font-weight: bold; color: #cc0000; margin-bottom: 3px; }
 .cosmic-text { font-size: 10px; line-height: 1.5; }
 
+/* Observatory map tooltip */
+.obs-tooltip {
+  padding: 6px 8px;
+  border: 1px solid #003366;
+  border-radius: 3px;
+  box-shadow: 2px 3px 8px rgba(0,0,0,0.2);
+}
+.obs-tooltip::before { display: none; }
+
 /* Observatory carousel */
 .obs-nav {
   display: flex;

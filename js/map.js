@@ -26,6 +26,49 @@
     .addTo(map)
     .bindTooltip('NRSC · Hyderabad', { permanent: false, direction: 'right' });
 
+  // Geomagnetic observatory markers
+  var obsIcon = function(code) {
+    return L.divIcon({
+      html: '<div style="background:#003366;color:#fff;font-size:9px;font-weight:bold;padding:2px 4px;border-radius:2px;white-space:nowrap;border:1px solid #001a4d;">' + code + '</div>',
+      className: '', iconAnchor: [12, 8]
+    });
+  };
+
+  var obsStations = [
+    {
+      code: 'ABG', name: 'Alibag',
+      lat: 18.638, lon: 72.872,
+      geoLat: '12.89° N', geoLon: '146.09° E'
+    },
+    {
+      code: 'JAI', name: 'Jaipur',
+      lat: 26.917, lon: 75.820,
+      geoLat: '18.36° N', geoLon: '150.49° E'
+    },
+    {
+      code: 'HYB', name: 'Hyderabad',
+      lat: 17.414, lon: 78.554,
+      geoLat: '8.09°–8.62° N', geoLon: '151.76° E'
+    }
+  ];
+
+  obsStations.forEach(function(s) {
+    var tip = '<div style="font-family:Arial,sans-serif;font-size:11px;line-height:1.8;min-width:200px;">'
+      + '<div style="background:#003366;color:#fff;font-weight:bold;padding:3px 7px;margin:-6px -8px 6px;border-radius:2px 2px 0 0;">'
+      + '🧭 ' + s.code + ' · ' + s.name + ' Observatory</div>'
+      + '<b>Geographic</b><br>'
+      + '&nbsp;Lat: ' + s.lat + '° N<br>'
+      + '&nbsp;Lon: ' + s.lon + '° E<br>'
+      + '<b>Geomagnetic (QD)</b><br>'
+      + '&nbsp;Lat: ' + s.geoLat + '<br>'
+      + '&nbsp;Lon: ' + s.geoLon
+      + '</div>';
+
+    L.marker([s.lat, s.lon], { icon: obsIcon(s.code) })
+      .addTo(map)
+      .bindTooltip(tip, { permanent: false, direction: 'right', className: 'obs-tooltip' });
+  });
+
   var clickMarker = null;
   map.on('click', function (e) {
     var lat = e.latlng.lat.toFixed(5);
