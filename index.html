@@ -238,36 +238,34 @@
                 style="background:#003366;color:#fff;font-size:12px;font-weight:bold;padding:4px 8px;margin-bottom:6px;">
                 NRSC Space Weather Station Map — India
               </div>
-              <div style="font-size:11px;color:#444;margin-bottom:6px;">
-                Click anywhere on the map to get location details.
-              </div>
 
               <!-- Map container -->
               <div id="india-map-wrap"
                 style="position:relative;width:100%;border:1px solid #aaa;background:#d6eaf8;overflow:hidden;cursor:crosshair;"
-                title="Click to get location info">
+                >
                 <div id="india-map-inner" style="position:relative;width:100%;padding-bottom:110%;"></div>
-              </div>
 
-              <!-- Popup -->
-              <div id="map-popup"
-                style="display:none;position:fixed;z-index:9999;background:#fff;border:2px solid #003366;border-radius:4px;box-shadow:2px 4px 12px rgba(0,0,0,0.25);padding:0;min-width:220px;font-family:Arial,sans-serif;font-size:12px;">
-                <div
-                  style="background:#003366;color:#fff;font-weight:bold;padding:5px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;">
-                  <span>📍 Location Details</span>
-                  <span onclick="document.getElementById('map-popup').style.display='none'"
-                    style="cursor:pointer;font-size:14px;line-height:1;">✕</span>
-                </div>
-                <div style="padding:10px 12px;line-height:1.9;">
-                  <div><b>Latitude:</b> &nbsp;<span id="pop-lat" style="color:#cc0000;font-weight:bold;">—</span></div>
-                  <div><b>Longitude:</b> &nbsp;<span id="pop-lon" style="color:#cc0000;font-weight:bold;">—</span></div>
-                  <div><b>Area:</b> &nbsp;<span id="pop-area" style="color:#003366;font-weight:bold;">—</span></div>
-                  <div><b>State:</b> &nbsp;<span id="pop-state" style="color:#003366;">—</span></div>
+                <!-- Popup inside map wrap so position:absolute stays within map -->
+                <div id="map-popup"
+                  style="display:none;position:fixed;z-index:9999;background:#fff;border:2px solid #003366;border-radius:4px;box-shadow:2px 4px 12px rgba(0,0,0,0.25);padding:0;min-width:220px;font-family:Arial,sans-serif;font-size:12px;">
                   <div
-                    style="margin-top:6px;padding-top:6px;border-top:1px solid #eee;font-size:10px;color:#888;font-style:italic;">
-                    More data fields coming soon...</div>
+                    style="background:#003366;color:#fff;font-weight:bold;padding:5px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;">
+                    <span>📍 Location Details</span>
+                    <span onclick="document.getElementById('map-popup').style.display='none'"
+                      style="cursor:pointer;font-size:14px;line-height:1;">✕</span>
+                  </div>
+                  <div style="padding:10px 12px;line-height:1.9;">
+                    <div><b>Latitude:</b> &nbsp;<span id="pop-lat" style="color:#cc0000;font-weight:bold;">—</span></div>
+                    <div><b>Longitude:</b> &nbsp;<span id="pop-lon" style="color:#cc0000;font-weight:bold;">—</span></div>
+                    <div><b>Area:</b> &nbsp;<span id="pop-area" style="color:#003366;font-weight:bold;">—</span></div>
+                    <div><b>State:</b> &nbsp;<span id="pop-state" style="color:#003366;">—</span></div>
+                    <div
+                      style="margin-top:6px;padding-top:6px;border-top:1px solid #eee;font-size:10px;color:#888;font-style:italic;">
+                      More data fields coming soon...</div>
+                  </div>
                 </div>
-              </div>
+
+              </div><!-- /india-map-wrap -->
 
             </div><!-- /india map section -->
 

@@ -613,14 +613,20 @@ a:hover { color: #cc0000; }
 .cosmic-head { font-size: 12px; font-weight: bold; color: #cc0000; margin-bottom: 3px; }
 .cosmic-text { font-size: 10px; line-height: 1.5; }
 
-/* Observatory map tooltip */
-.obs-tooltip {
-  padding: 6px 8px;
+/* Observatory map popup — remove Leaflet's default outer box */
+.obs-tooltip .leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 4px;
+  box-shadow: 2px 4px 12px rgba(0,0,0,0.25);
   border: 1px solid #003366;
-  border-radius: 3px;
-  box-shadow: 2px 3px 8px rgba(0,0,0,0.2);
+  overflow: hidden;
+  background: #fff;
 }
-.obs-tooltip::before { display: none; }
+.obs-tooltip .leaflet-popup-content {
+  margin: 0;
+  line-height: 1;
+}
+.obs-tooltip .leaflet-popup-tip-container { display: none; }
 
 /* Observatory carousel */
 .obs-nav {
