@@ -81,45 +81,71 @@ function loadImg(input, slotId) {
 }
 
 // ── Dashboard: render community submissions ──
+var _photoRows = [];
+var _photoIndex = 0;
+
+function photoNav(dir) {
+  if (_photoRows.length === 0) return;
+  _photoIndex = (_photoIndex + dir + _photoRows.length) % _photoRows.length;
+  renderPhotoCard();
+}
+
+function renderPhotoCard() {
+  var slot = document.getElementById('photo-card-slot');
+  var pos  = document.getElementById('photo-nav-pos');
+  if (!slot) return;
+
+  var row      = _photoRows[_photoIndex];
+  var name     = row.name             || '';
+  var what     = row.what_observed    || 'Space Weather Observation';
+  var location = row.location         || '';
+  var dateStr  = row.observation_date || '';
+  var category = row.category         || '';
+  var desc     = row.description      || '';
+  var website  = row.website          || '';
+  var photoUrl = (row.photo_urls && row.photo_urls[0]) ? row.photo_urls[0] : '';
+
+  var metaParts = [];
+  if (name)     metaParts.push('📷 ' + escHtml(name));
+  if (location) metaParts.push('📍 ' + escHtml(location));
+  if (dateStr)  metaParts.push('📅 ' + escHtml(dateStr));
+  if (category) metaParts.push('🏷️ ' + escHtml(category));
+
+  var imgHtml     = photoUrl ? '<img class="user-article-img" src="' + escHtml(photoUrl) + '" alt="' + escHtml(what) + '">' : '';
+  var websiteHtml = website  ? '<div style="font-size:11px;margin-top:5px;"><b>More images:</b> <a href="' + escHtml(website) + '" target="_blank">' + escHtml(website) + '</a></div>' : '';
+
+  slot.innerHTML =
+    '<div class="user-article-badge">🛰️ NRSC Space Weather &nbsp;·&nbsp; READER OBSERVATION</div>' +
+    '<div class="user-article-inner">' +
+      '<div class="user-article-head">' + escHtml(what.toUpperCase()) + ':</div>' +
+      '<div class="user-article-meta">' + metaParts.join(' &nbsp;|&nbsp; ') + '</div>' +
+      imgHtml +
+      (desc ? '<div class="user-article-desc">' + escHtml(desc) + '</div>' : '') +
+      websiteHtml +
+    '</div>';
+
+  if (pos) pos.textContent = (_photoIndex + 1) + ' / ' + _photoRows.length;
+}
+
 function injectIntoDashboard(rows) {
-  const userArticleDiv = document.getElementById('user-article');
+  var userArticleDiv = document.getElementById('user-article');
   if (!userArticleDiv) return;
-  userArticleDiv.innerHTML = '';
+  _photoRows  = rows;
+  _photoIndex = 0;
 
-  rows.forEach(function (row) {
-    const name     = row.name            || '';
-    const what     = row.what_observed   || 'Space Weather Observation';
-    const location = row.location        || '';
-    const dateStr  = row.observation_date|| '';
-    const category = row.category        || '';
-    const desc     = row.description     || '';
-    const website  = row.website         || '';
-    const photoUrl = (row.photo_urls && row.photo_urls[0]) ? row.photo_urls[0] : '';
-
-    const metaParts = [];
-    if (name)     metaParts.push('📷 ' + escHtml(name));
-    if (location) metaParts.push('📍 ' + escHtml(location));
-    if (dateStr)  metaParts.push('📅 ' + escHtml(dateStr));
-    if (category) metaParts.push('🏷️ ' + escHtml(category));
-
-    const imgHtml     = photoUrl ? '<img class="user-article-img" src="' + escHtml(photoUrl) + '" alt="' + escHtml(what) + '">' : '';
-    const websiteHtml = website  ? '<div style="font-size:11px;margin-top:5px;"><b>More images:</b> <a href="' + escHtml(website) + '" target="_blank">' + escHtml(website) + '</a></div>' : '';
-
-    const card = document.createElement('div');
-    card.style.marginBottom = '18px';
-    card.innerHTML =
-      '<div class="user-article-badge">🛰️ NRSC Space Weather &nbsp;·&nbsp; READER OBSERVATION</div>' +
-      '<div class="user-article-inner">' +
-        '<div class="user-article-head">' + escHtml(what.toUpperCase()) + ':</div>' +
-        '<div class="user-article-meta">' + metaParts.join(' &nbsp;|&nbsp; ') + '</div>' +
-        imgHtml +
-        (desc ? '<div class="user-article-desc">' + escHtml(desc) + '</div>' : '') +
-        websiteHtml +
-      '</div>';
-    userArticleDiv.appendChild(card);
-  });
+  userArticleDiv.innerHTML =
+    '<div class="obs-nav" style="margin-bottom:4px;">' +
+      '<button class="obs-arrow" onclick="photoNav(-1)">&#8592;</button>' +
+      '<span style="font-size:11px;color:#555;">' +
+        'Community Observations &nbsp;' +
+        '<span id="photo-nav-pos">1 / ' + rows.length + '</span>' +
+      '</span>' +
+      '<button class="obs-arrow" onclick="photoNav(1)">&#8594;</button>' +
+    '</div>' +
+    '<div id="photo-card-slot"></div>';
 
   userArticleDiv.style.display = 'block';
+  renderPhotoCard();
 }
 
 // ── Home page init ──
