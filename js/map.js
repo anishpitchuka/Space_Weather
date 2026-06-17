@@ -11,7 +11,9 @@
 
   var map = L.map('india-map-inner', {
     center: [22.5, 82.5], zoom: 4, minZoom: 4, maxZoom: 10,
-    maxBounds: [[5, 66], [38, 98]], zoomControl: true
+    maxBounds: [[-5, 58], [40, 102]],
+    maxBoundsViscosity: 0.6,
+    zoomControl: true
   });
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -168,6 +170,72 @@
       });
   });
 
+  // ── Space science data centres (ISRO mission archives) ──
+  var dataIcon = function(label) { return makeIcon(label, '#00695c', '#004d40'); };
+
+  var dataCenters = [
+    {
+      label: 'ISSDC',
+      name: 'Indian Space Science Data Centre · Byalalu',
+      lat: 12.9018, lon: 77.3682,
+      institute: 'ISRO / ISTRAC · IDSN campus, Bengaluru',
+      desc: 'Ingest, archive & dissemination of payload data — Aditya-L1, Chandrayaan, AstroSat, Mars Orbiter & other ISRO space science missions',
+      links: [{ url: 'https://www.issdc.gov.in/', label: 'ISSDC · Aditya-L1 & mission data' }]
+    }
+  ];
+
+  dataCenters.forEach(function(s) {
+    var rows = [
+      '<b>' + s.institute + '</b>',
+      'Lat: ' + s.lat + '° N &nbsp;|&nbsp; Lon: ' + s.lon + '° E',
+      '<b>Focus:</b> ' + s.desc,
+      '<span style="color:#888;font-size:10px;">📦 Space Science Data Centre</span>'
+    ];
+    L.marker([s.lat, s.lon], { icon: dataIcon(s.label) })
+      .addTo(map)
+      .bindPopup(makePopup('📦', s.name, rows, s.links),
+        { className: 'obs-tooltip', maxWidth: 280 })
+      .on('click', function() {
+        if (locationPopup) locationPopup.style.display = 'none';
+        if (clickMarker) { map.removeLayer(clickMarker); clickMarker = null; }
+      });
+  });
+
+  // ── Radio observatories ──
+  var radioIcon = function(label) { return makeIcon(label, '#2e7d32', '#1b5e20'); };
+
+  var radioStations = [
+    {
+      label: 'GMRT',
+      name: 'Giant Metrewave Radio Telescope · Khodad',
+      lat: 19.0965, lon: 74.0497, alt: '650 m',
+      institute: 'National Centre for Radio Astrophysics (NCRA-TIFR)',
+      desc: '30 × 45 m dishes at metre wavelengths — world\'s largest sensitive array at low radio frequencies (~80 km N of Pune). Observational data via request-based GOA archive.',
+      links: [
+        { url: 'https://www.gmrt.ncra.tifr.res.in/', label: 'GMRT website' },
+        { url: 'https://naps.ncra.tifr.res.in/goa/data/search', label: 'GMRT Online Archive (GOA)' }
+      ]
+    }
+  ];
+
+  radioStations.forEach(function(s) {
+    var rows = [
+      '<b>' + s.institute + '</b>',
+      'Lat: ' + s.lat + '° N &nbsp;|&nbsp; Lon: ' + s.lon + '° E',
+      'Alt: ' + s.alt,
+      '<b>Focus:</b> ' + s.desc,
+      '<span style="color:#888;font-size:10px;">📡 Radio Observatory</span>'
+    ];
+    L.marker([s.lat, s.lon], { icon: radioIcon(s.label) })
+      .addTo(map)
+      .bindPopup(makePopup('📡', s.name, rows, s.links),
+        { className: 'obs-tooltip', maxWidth: 280 })
+      .on('click', function() {
+        if (locationPopup) locationPopup.style.display = 'none';
+        if (clickMarker) { map.removeLayer(clickMarker); clickMarker = null; }
+      });
+  });
+
   // ── Legend ──
   var legend = L.control({ position: 'bottomleft' });
   legend.onAdd = function() {
@@ -178,7 +246,9 @@
       + '<div><span style="background:#cc0000;color:#fff;padding:1px 5px;border-radius:2px;font-size:9px;">NRSC</span> &nbsp;NRSC / ISRO</div>'
       + '<div><span style="background:#003366;color:#fff;padding:1px 5px;border-radius:2px;font-size:9px;">ABG</span> &nbsp;Geomagnetic</div>'
       + '<div><span style="background:#b35900;color:#fff;padding:1px 5px;border-radius:2px;font-size:9px;">KSO</span> &nbsp;Solar</div>'
-      + '<div><span style="background:#5c0099;color:#fff;padding:1px 5px;border-radius:2px;font-size:9px;">IAO</span> &nbsp;Optical / IR</div>';
+      + '<div><span style="background:#5c0099;color:#fff;padding:1px 5px;border-radius:2px;font-size:9px;">IAO</span> &nbsp;Optical / IR</div>'
+      + '<div><span style="background:#00695c;color:#fff;padding:1px 5px;border-radius:2px;font-size:9px;">ISSDC</span> &nbsp;Space science data</div>'
+      + '<div><span style="background:#2e7d32;color:#fff;padding:1px 5px;border-radius:2px;font-size:9px;">GMRT</span> &nbsp;Radio</div>';
     return div;
   };
   legend.addTo(map);
