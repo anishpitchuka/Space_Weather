@@ -58,12 +58,32 @@ function updateAlertBanner() {
 }
 
 // ── SOLAR WIND ──
+function findLatestValidRow(d, speedIdx, densityIdx) {
+  // NOAA sometimes flags the newest row(s) with literal "NaN" values, or the
+  // "2-hour" endpoint can come back with only the header row (no data). Walk
+  // backward from the end to find the last row with real numbers.
+  if (!Array.isArray(d)) return null;
+  for (let i = d.length - 1; i >= 1; i--) {
+    const a = parseFloat(d[i][speedIdx]), b = parseFloat(d[i][densityIdx]);
+    if (!isNaN(a) && !isNaN(b)) return { row: d[i], a, b };
+  }
+  return null;
+}
+
 async function loadSolarWind() {
   try {
-    const r   = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json');
-    const d   = await r.json();
-    const row = d[d.length - 1];
-    const spd = parseFloat(row[2]), den = parseFloat(row[1]);
+    let r    = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json');
+    let d    = await r.json();
+    let hit  = findLatestValidRow(d, 2, 1);
+    if (!hit) {
+      // 2-hour feed came back empty/NaN — fall back to the 1-day feed, which
+      // ends at the same latest reading but has historically been reliable.
+      r   = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json');
+      d   = await r.json();
+      hit = findLatestValidRow(d, 2, 1);
+    }
+    const row = hit ? hit.row : d[d.length - 1];
+    const spd = hit ? hit.a : NaN, den = hit ? hit.b : NaN;
     const el_sw_speed   = document.getElementById('sw-speed');   if (el_sw_speed)   el_sw_speed.textContent   = isNaN(spd) ? 'N/A' : spd.toFixed(1);
     const el_sw_density = document.getElementById('sw-density'); if (el_sw_density) el_sw_density.textContent = isNaN(den) ? 'N/A' : den.toFixed(2);
     const el_sw_updated = document.getElementById('sw-updated'); if (el_sw_updated) el_sw_updated.textContent = 'Updated: Today at ' + utcTime(row[0]);
@@ -77,10 +97,16 @@ async function loadSolarWind() {
 // ── IMF ──
 async function loadIMF() {
   try {
-    const r   = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json');
-    const d   = await r.json();
-    const row = d[d.length - 1];
-    const bt  = parseFloat(row[6]), bz = parseFloat(row[3]);
+    let r    = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json');
+    let d    = await r.json();
+    let hit  = findLatestValidRow(d, 6, 3); // bt at index 6, bz at index 3
+    if (!hit) {
+      r   = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json');
+      d   = await r.json();
+      hit = findLatestValidRow(d, 6, 3);
+    }
+    const row = hit ? hit.row : d[d.length - 1];
+    const bt  = hit ? hit.a : NaN, bz = hit ? hit.b : NaN;
     const el_imf_bt      = document.getElementById('imf-bt');      if (el_imf_bt)      el_imf_bt.textContent  = isNaN(bt) ? 'N/A' : bt.toFixed(2);
     const el_imf_bz      = document.getElementById('imf-bz');      if (el_imf_bz)      el_imf_bz.textContent  = isNaN(bz) ? 'N/A' : bz.toFixed(2);
     const el_imf_dir     = document.getElementById('imf-dir');     if (el_imf_dir)     el_imf_dir.innerHTML   = (!isNaN(bz) && bz >= 0) ? '<span style="color:#009900">north</span>' : '<span style="color:#cc0000">south</span>';
