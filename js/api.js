@@ -221,7 +221,8 @@ async function loadAsteroids() {
     const today = new Date();
     const end   = new Date(); end.setDate(today.getDate() + 7);
     const fmt   = x => x.toISOString().slice(0, 10);
-    const resp  = await fetchWithTimeout(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${fmt(today)}&end_date=${fmt(end)}&api_key=DEMO_KEY`);
+    const key   = (typeof NASA_API_KEY !== 'undefined' && NASA_API_KEY && !NASA_API_KEY.startsWith('PASTE_') && !NASA_API_KEY.startsWith('YOUR_')) ? NASA_API_KEY : 'DEMO_KEY';
+    const resp  = await fetchWithTimeout(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${fmt(today)}&end_date=${fmt(end)}&api_key=${key}`);
     const json  = await resp.json();
     if (json.near_earth_objects) {
       const rows = [];
