@@ -11,7 +11,7 @@
 
 // ── Sun image toggle ──
 const SUN = {
-  labels:   'https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_HMIi.jpg',
+  labels:   'https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_HMII.jpg',
   nolabels: 'https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_HMIB.jpg'
 };
 function setSunMode(m) {

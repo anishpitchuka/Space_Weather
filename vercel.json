@@ -1,4 +1,4 @@
 {
-  "buildCommand": "echo \"const SUPABASE_URL='$SUPABASE_URL'; const SUPABASE_KEY='$SUPABASE_ANON_KEY';\" > js/config.js",
+  "buildCommand": "echo \"const SUPABASE_URL='$SUPABASE_URL'; const SUPABASE_KEY='$SUPABASE_ANON_KEY'; const NASA_API_KEY='$NASA_API_KEY';\" > js/config.js",
   "outputDirectory": "."
 }
