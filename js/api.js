@@ -175,6 +175,86 @@ async function loadFlares() {
   }
 }
 
+// ── STORM FORECAST (geomagnetic storm predictor, via Supabase) ──
+async function loadStormPrediction() {
+  const section = document.getElementById('storm-forecast-section');
+  if (typeof supabase === 'undefined' || !section) return;
+  try {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const { data, error } = await sb
+      .from('storm_predictions')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (error || !data || data.length === 0) return; // nothing published yet — leave section hidden
+
+    const row = data[0];
+    const el_1h   = document.getElementById('storm-1h');          if (el_1h)   el_1h.textContent   = row.forecast_1h?.toFixed(1) ?? 'N/A';
+    const el_3h   = document.getElementById('storm-3h');          if (el_3h)   el_3h.textContent   = row.forecast_3h?.toFixed(1) ?? 'N/A';
+    const el_6h   = document.getElementById('storm-6h');          if (el_6h)   el_6h.textContent   = row.forecast_6h?.toFixed(1) ?? 'N/A';
+    const el_prob = document.getElementById('storm-probability'); if (el_prob) el_prob.textContent = (row.storm_probability != null) ? (row.storm_probability * 100).toFixed(0) + '%' : 'N/A';
+    const el_sev  = document.getElementById('storm-severity');    if (el_sev)  el_sev.textContent  = row.worst_severity ? '(' + row.worst_severity + ')' : '';
+    const el_var  = document.getElementById('storm-model-variant'); if (el_var) el_var.textContent = row.model_variant ? '· ' + row.model_variant : '';
+
+    const el_cme = document.getElementById('storm-cme-outlook');
+    if (el_cme) {
+      if (row.cme_outlook) { el_cme.textContent = '🛰️ ' + row.cme_outlook; el_cme.style.display = 'block'; }
+      else { el_cme.style.display = 'none'; }
+    }
+    const el_mp = document.getElementById('storm-main-phase');
+    if (el_mp) {
+      if (row.main_phase_status) { el_mp.textContent = '⚡ ' + row.main_phase_status; el_mp.style.display = 'block'; }
+      else { el_mp.style.display = 'none'; }
+    }
+    const el_updated = document.getElementById('storm-updated');
+    if (el_updated) el_updated.textContent = 'Updated: ' + utcTime(row.created_at);
+
+    section.style.display = 'block';
+  } catch (e) {
+    // storm_predictions table doesn't exist yet, or fetch failed — leave section hidden, don't break the page
+  }
+}
+
+// ── DST FORECAST-VS-ACTUAL CHART (image, uploaded by the predictor's GitHub Action) ──
+function loadDstForecastChart() {
+  const img   = document.getElementById('dst-forecast-chart-img');
+  const empty = document.getElementById('dst-forecast-chart-empty');
+  const updated = document.getElementById('dst-forecast-chart-updated');
+  if (typeof SUPABASE_URL === 'undefined' || !img) return;
+
+  const url = SUPABASE_URL + '/storage/v1/object/public/charts/latest_dst_forecast.png?t=' + Date.now();
+  const probe = new Image();
+  probe.onload = function () {
+    img.src = url;
+    img.style.display = 'inline-block';
+    if (empty) empty.style.display = 'none';
+    if (updated) updated.textContent = 'Chart updated: ' + utcTime(new Date().toISOString());
+  };
+  probe.onerror = function () {
+    img.style.display = 'none';
+    if (empty) empty.style.display = 'block';
+  };
+  probe.src = url;
+}
+
+// ── SUNSPOT NUMBER ──
+async function loadSunspotNumber() {
+  try {
+    const r     = await fetchWithTimeout('https://www.sidc.be/SILSO/DATA/EISN/EISN_current.csv');
+    const text  = await r.text();
+    const lines = text.trim().split('\n').filter(l => l.trim());
+    const last  = lines[lines.length - 1].split(',').map(s => s.trim());
+    const ssn   = parseFloat(last[4]);
+    const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const mo    = parseInt(last[1], 10);
+    const el_num = document.getElementById('sunspot-num');     if (el_num) el_num.textContent = isNaN(ssn) ? 'N/A' : Math.round(ssn);
+    const el_upd = document.getElementById('sunspot-updated'); if (el_upd) el_upd.textContent = isNaN(ssn) ? 'Data unavailable' : ('Updated ' + last[2] + ' ' + (months[mo] || last[1]) + ' ' + last[0]);
+  } catch(e) {
+    const el_num = document.getElementById('sunspot-num');     if (el_num) el_num.textContent = '---';
+    const el_upd = document.getElementById('sunspot-updated'); if (el_upd) el_upd.textContent = 'Data unavailable';
+  }
+}
+
 // ── ASTEROIDS ──
 const STATIC_ASTS = [
   { n:'2026 KC2',  d:'2026-May-25', ld:'7.8',  v:'10.3', m:'22',  today:true },

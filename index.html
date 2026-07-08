@@ -72,6 +72,20 @@
 
           <hr class="divider-line">
 
+          <!-- Storm Forecast (Model B, from the geomagnetic storm predictor) -->
+          <div class="cc-section" id="storm-forecast-section" style="display:none;">
+            <div class="cc-section-head">Storm Forecast <span id="storm-model-variant" style="font-size:10px;color:#555;font-weight:normal;"></span></div>
+            <div class="cc-value">+1h: <b><span id="storm-1h" class="red-val">...</span></b> nT</div>
+            <div class="cc-value">+3h: <b><span id="storm-3h" class="red-val">...</span></b> nT</div>
+            <div class="cc-value">+6h: <b><span id="storm-6h" class="red-val">...</span></b> nT</div>
+            <div class="cc-value">Storm probability: <b><span id="storm-probability" class="red-val">...</span></b> &nbsp;<span id="storm-severity"></span></div>
+            <div class="small-link" id="storm-cme-outlook" style="display:none;"></div>
+            <div class="small-link" id="storm-main-phase" style="display:none;"></div>
+            <div class="updated" id="storm-updated">Updated: --</div>
+          </div>
+
+          <hr class="divider-line">
+
           <!-- KP Index -->
           <div class="cc-section">
             <div class="cc-section-head">Planetary K-index (KP)</div>
@@ -163,35 +177,21 @@
             <!-- USER SUBMITTED ARTICLE (injected after form submit) -->
             <div id="user-article" style="display:none;"></div>
 
-            <!-- Article 1: Sunset Sky Show -->
-            <div class="article-block clearfix">
-              <div class="article-head">SUNSET SKY SHOW:</div>
-              <div class="article-text">
-                When the sun goes down tonight, step outside and look west. Venus and Jupiter are converging in the
-                twilight sky -- noticably closer together every night as they head for a spectacular conjunction on June
-                8-9. The show starts now!
-                <b>Sky maps:</b>
-                <span class="sky-links">
-                  <a href="https://spaceweather.com/images2026/22may26/skymap_25may26.png" target="_blank">May 25</a>,
-                  <a href="https://spaceweather.com/images2026/22may26/skymap_26may26.png" target="_blank">26</a>,
-                  <a href="https://spaceweather.com/images2026/22may26/skymap_27may26.png" target="_blank">27</a>,
-                  <a href="https://spaceweather.com/images2026/22may26/skymap_28may26.png" target="_blank">28</a>,
-                  <a href="https://spaceweather.com/images2026/22may26/skymap_29may26.png" target="_blank">29</a>,
-                  <a href="https://spaceweather.com/images2026/22may26/skymap_30may26.png" target="_blank">30</a>,
-                  <a href="https://spaceweather.com/images2026/22may26/skymap_31may26.png" target="_blank">31</a>.
-                </span>
+            <!-- Article 1: Storm Predictor — Forecast vs Actual Dst -->
+            <div class="article-block clearfix" id="dst-forecast-chart-block">
+              <div class="article-head">GEOMAGNETIC STORM PREDICTOR: FORECAST VS ACTUAL</div>
+              <div class="article-text" id="dst-forecast-chart-caption">
+                Dst index — solid line is observed, dashed line is what the model forecast for that hour, made 1 hour
+                in advance. Regenerated automatically every time the prediction pipeline runs.
               </div>
-              <!-- Article 1 image upload slot -->
-              <div class="img-upload-slot" id="slot1" onclick="document.getElementById('file1').click()">
-                <input type="file" id="file1" accept="image/*" onchange="loadImg(this,'slot1')"
-                  onclick="event.stopPropagation()">
-                <div class="slot-placeholder" id="slot1-ph">
-                  <div class="slot-icon">🌅</div>
-                  <div>Click to upload image for this article</div>
-                  <div class="slot-label">Choose Image</div>
+              <div id="dst-forecast-chart-wrap" style="text-align:center;margin-top:6px;">
+                <img id="dst-forecast-chart-img" alt="Dst forecast vs actual chart"
+                  style="display:none;max-width:100%;border:1px solid #ccc;">
+                <div id="dst-forecast-chart-empty" style="font-size:11px;color:#888;font-style:italic;padding:10px;">
+                  No forecast chart published yet.
                 </div>
-                <img class="slot-preview" id="slot1-img" alt="Article 1 image">
               </div>
+              <div style="font-size:10px;color:#888;text-align:right;margin-top:2px;" id="dst-forecast-chart-updated"></div>
             </div>
 
             <!-- Article 2: Mad Sunspot -->

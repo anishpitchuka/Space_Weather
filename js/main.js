@@ -156,7 +156,10 @@ document.addEventListener('DOMContentLoaded', function () {
   loadKp();
   loadFlares();
   loadAsteroids();
-  setInterval(function () { loadSolarWind(); loadIMF(); loadKp(); loadFlares(); }, 300000);
+  loadSunspotNumber();
+  loadStormPrediction();
+  loadDstForecastChart();
+  setInterval(function () { loadSolarWind(); loadIMF(); loadKp(); loadFlares(); loadSunspotNumber(); loadStormPrediction(); loadDstForecastChart(); }, 300000);
 
   if (typeof supabase !== 'undefined') {
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
