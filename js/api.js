@@ -72,13 +72,22 @@ function findLatestValidRow(d, speedIdx, densityIdx) {
 
 async function loadSolarWind() {
   try {
-    let r    = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json');
-    let d    = await r.json();
-    let hit  = findLatestValidRow(d, 2, 1);
+    // 2-hour feed can return a hard error (e.g. NOAA 503) as well as
+    // valid-but-empty/NaN JSON — a thrown fetch/parse error here must still
+    // fall through to the 1-day fallback below, not skip straight to the
+    // outer catch, so this is its own try/catch rather than sharing one with
+    // the fallback attempt.
+    let d = null;
+    try {
+      const r = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json');
+      if (r.ok) d = await r.json();
+    } catch (e) { /* fall through to 1-day fallback below */ }
+    let hit = d ? findLatestValidRow(d, 2, 1) : null;
     if (!hit) {
-      // 2-hour feed came back empty/NaN — fall back to the 1-day feed, which
-      // ends at the same latest reading but has historically been reliable.
-      r   = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json');
+      // 2-hour feed errored, or came back empty/NaN — fall back to the 1-day
+      // feed, which ends at the same latest reading but has historically
+      // been reliable.
+      const r = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json');
       d   = await r.json();
       hit = findLatestValidRow(d, 2, 1);
     }
@@ -97,11 +106,17 @@ async function loadSolarWind() {
 // ── IMF ──
 async function loadIMF() {
   try {
-    let r    = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json');
-    let d    = await r.json();
-    let hit  = findLatestValidRow(d, 6, 3); // bt at index 6, bz at index 3
+    // Same reasoning as loadSolarWind(): a 2-hour feed error (e.g. NOAA 503)
+    // must still fall through to the 1-day fallback, so it gets its own
+    // try/catch instead of sharing one with the fallback attempt.
+    let d = null;
+    try {
+      const r = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json');
+      if (r.ok) d = await r.json();
+    } catch (e) { /* fall through to 1-day fallback below */ }
+    let hit = d ? findLatestValidRow(d, 6, 3) : null; // bt at index 6, bz at index 3
     if (!hit) {
-      r   = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json');
+      const r = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json');
       d   = await r.json();
       hit = findLatestValidRow(d, 6, 3);
     }
