@@ -58,44 +58,23 @@ function updateAlertBanner() {
 }
 
 // ── SOLAR WIND ──
-function findLatestValidRow(d, speedIdx, densityIdx) {
-  // NOAA sometimes flags the newest row(s) with literal "NaN" values, or the
-  // "2-hour" endpoint can come back with only the header row (no data). Walk
-  // backward from the end to find the last row with real numbers.
-  if (!Array.isArray(d)) return null;
-  for (let i = d.length - 1; i >= 1; i--) {
-    const a = parseFloat(d[i][speedIdx]), b = parseFloat(d[i][densityIdx]);
-    if (!isNaN(a) && !isNaN(b)) return { row: d[i], a, b };
-  }
-  return null;
-}
-
+// NOAA retired the entire /products/solar-wind/ directory (plasma-2-hour.json,
+// plasma-1-day.json, mag-2-hour.json, mag-1-day.json all 404 now, verified
+// directly against services.swpc.noaa.gov). Replaced with the new
+// /json/rtsw/ real-time solar wind feed.
 async function loadSolarWind() {
   try {
-    // 2-hour feed can return a hard error (e.g. NOAA 503) as well as
-    // valid-but-empty/NaN JSON — a thrown fetch/parse error here must still
-    // fall through to the 1-day fallback below, not skip straight to the
-    // outer catch, so this is its own try/catch rather than sharing one with
-    // the fallback attempt.
-    let d = null;
-    try {
-      const r = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/plasma-2-hour.json');
-      if (r.ok) d = await r.json();
-    } catch (e) { /* fall through to 1-day fallback below */ }
-    let hit = d ? findLatestValidRow(d, 2, 1) : null;
-    if (!hit) {
-      // 2-hour feed errored, or came back empty/NaN — fall back to the 1-day
-      // feed, which ends at the same latest reading but has historically
-      // been reliable.
-      const r = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json');
-      d   = await r.json();
-      hit = findLatestValidRow(d, 2, 1);
+    const r   = await fetchWithTimeout('https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json');
+    const d   = await r.json();
+    let row = null;
+    for (let i = d.length - 1; i >= 0; i--) {
+      if (d[i].proton_speed != null && d[i].proton_density != null) { row = d[i]; break; }
     }
-    const row = hit ? hit.row : d[d.length - 1];
-    const spd = hit ? hit.a : NaN, den = hit ? hit.b : NaN;
+    if (!row) throw new Error('no valid solar wind rows');
+    const spd = parseFloat(row.proton_speed), den = parseFloat(row.proton_density);
     const el_sw_speed   = document.getElementById('sw-speed');   if (el_sw_speed)   el_sw_speed.textContent   = isNaN(spd) ? 'N/A' : spd.toFixed(1);
     const el_sw_density = document.getElementById('sw-density'); if (el_sw_density) el_sw_density.textContent = isNaN(den) ? 'N/A' : den.toFixed(2);
-    const el_sw_updated = document.getElementById('sw-updated'); if (el_sw_updated) el_sw_updated.textContent = 'Updated: Today at ' + utcTime(row[0]);
+    const el_sw_updated = document.getElementById('sw-updated'); if (el_sw_updated) el_sw_updated.textContent = 'Updated: Today at ' + utcTime(row.time_tag);
   } catch(e) {
     const el_sw_speed   = document.getElementById('sw-speed');   if (el_sw_speed)   el_sw_speed.textContent   = '---';
     const el_sw_density = document.getElementById('sw-density'); if (el_sw_density) el_sw_density.textContent = '---';
@@ -104,28 +83,21 @@ async function loadSolarWind() {
 }
 
 // ── IMF ──
+// NOAA retired /products/solar-wind/mag-2-hour.json — replaced by /json/rtsw/rtsw_mag_1m.json
 async function loadIMF() {
   try {
-    // Same reasoning as loadSolarWind(): a 2-hour feed error (e.g. NOAA 503)
-    // must still fall through to the 1-day fallback, so it gets its own
-    // try/catch instead of sharing one with the fallback attempt.
-    let d = null;
-    try {
-      const r = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/mag-2-hour.json');
-      if (r.ok) d = await r.json();
-    } catch (e) { /* fall through to 1-day fallback below */ }
-    let hit = d ? findLatestValidRow(d, 6, 3) : null; // bt at index 6, bz at index 3
-    if (!hit) {
-      const r = await fetchWithTimeout('https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json');
-      d   = await r.json();
-      hit = findLatestValidRow(d, 6, 3);
+    const r   = await fetchWithTimeout('https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json');
+    const d   = await r.json();
+    let row = null;
+    for (let i = d.length - 1; i >= 0; i--) {
+      if (d[i].bt != null && d[i].bz_gsm != null) { row = d[i]; break; }
     }
-    const row = hit ? hit.row : d[d.length - 1];
-    const bt  = hit ? hit.a : NaN, bz = hit ? hit.b : NaN;
+    if (!row) throw new Error('no valid IMF rows');
+    const bt  = parseFloat(row.bt), bz = parseFloat(row.bz_gsm);
     const el_imf_bt      = document.getElementById('imf-bt');      if (el_imf_bt)      el_imf_bt.textContent  = isNaN(bt) ? 'N/A' : bt.toFixed(2);
     const el_imf_bz      = document.getElementById('imf-bz');      if (el_imf_bz)      el_imf_bz.textContent  = isNaN(bz) ? 'N/A' : bz.toFixed(2);
     const el_imf_dir     = document.getElementById('imf-dir');     if (el_imf_dir)     el_imf_dir.innerHTML   = (!isNaN(bz) && bz >= 0) ? '<span style="color:#009900">north</span>' : '<span style="color:#cc0000">south</span>';
-    const el_imf_updated = document.getElementById('imf-updated'); if (el_imf_updated) el_imf_updated.textContent = 'Updated: Today at ' + utcTime(row[0]);
+    const el_imf_updated = document.getElementById('imf-updated'); if (el_imf_updated) el_imf_updated.textContent = 'Updated: Today at ' + utcTime(row.time_tag);
   } catch(e) {
     const el_imf_bt = document.getElementById('imf-bt'); if (el_imf_bt) el_imf_bt.textContent = '---';
     const el_imf_bz = document.getElementById('imf-bz'); if (el_imf_bz) el_imf_bz.textContent = '---';
