@@ -159,7 +159,9 @@ document.addEventListener('DOMContentLoaded', function () {
   loadSunspotNumber();
   loadStormPrediction();
   loadDstForecastChart();
-  setInterval(function () { loadSolarWind(); loadIMF(); loadKp(); loadFlares(); loadSunspotNumber(); loadStormPrediction(); loadDstForecastChart(); }, 300000);
+  loadFlareForecast();
+  loadFlareFluxChart();
+  setInterval(function () { loadSolarWind(); loadIMF(); loadKp(); loadFlares(); loadSunspotNumber(); loadStormPrediction(); loadDstForecastChart(); loadFlareForecast(); loadFlareFluxChart(); }, 300000);
 
   if (typeof supabase !== 'undefined') {
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);

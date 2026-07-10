@@ -86,6 +86,30 @@
 
           <hr class="divider-line">
 
+          <!-- Solar Flare Forecast (ISRO Aditya-L1 flare predictor, via Supabase) -->
+          <div class="cc-section" id="flare-forecast-section" style="display:none;">
+            <div class="cc-section-head">Solar Flare Forecast <span id="flare-risk-level" style="font-size:10px;color:#555;font-weight:normal;"></span></div>
+            <div class="cc-value">Current: <b><span id="flare-current-class" class="red-val">...</span></b> <span id="flare-class-meaning" style="font-size:10px;color:#555;"></span></div>
+            <div class="cc-value">Active regions: <b><span id="flare-active-regions">...</span></b></div>
+            <div class="cc-value" style="font-size:11px;">Current C/M/X chance: <b><span id="flare-current-probs">...</span></b></div>
+
+            <div style="margin-top:4px;font-size:11px;">
+              <b>Nowcast</b>
+              <div id="flare-nowcast-body" style="margin:2px 0 4px 0;"></div>
+              <b>Extended forecast</b>
+              <div id="flare-forecast-body" style="margin:2px 0 4px 0;"></div>
+              <b>Ensemble forecast</b>
+              <div id="flare-ensemble-body" style="margin:2px 0 4px 0;"></div>
+            </div>
+
+            <div class="small-link" id="flare-cme" style="display:none;"></div>
+            <div class="small-link" id="flare-earth-impact" style="display:none;"></div>
+            <div class="small-link" id="flare-storm-watch" style="display:none;"></div>
+            <div class="updated" id="flare-forecast-updated">Updated: --</div>
+          </div>
+
+          <hr class="divider-line">
+
           <!-- KP Index -->
           <div class="cc-section">
             <div class="cc-section-head">Planetary K-index (KP)</div>
@@ -194,40 +218,21 @@
               <div style="font-size:10px;color:#888;text-align:right;margin-top:2px;" id="dst-forecast-chart-updated"></div>
             </div>
 
-            <!-- Article 2: Mad Sunspot -->
-            <div class="article-block clearfix">
-              <div class="article-head">WHAT MADE THIS SUNSPOT SO MAD?</div>
-              <div class="article-text">
-                Sunspot 4446 is emerging over the sun's southeastern limb today and it looks angry. Thierry Legault
-                photographed the seething active region from Paris, France:
+            <!-- Article 2: Solar Flare Predictor — X-ray Flux History -->
+            <div class="article-block clearfix" id="flare-flux-chart-block">
+              <div class="article-head">SOLAR FLARE PREDICTOR: X-RAY FLUX (LAST 24H)</div>
+              <div class="article-text" id="flare-flux-chart-caption">
+                GOES X-ray flux with B/C/M/X flare-class threshold lines. Regenerated automatically every time the
+                flare prediction pipeline runs.
               </div>
-              <!-- Article 2 image upload slot -->
-              <div class="img-upload-slot" id="slot2" onclick="document.getElementById('file2').click()">
-                <input type="file" id="file2" accept="image/*" onchange="loadImg(this,'slot2')"
-                  onclick="event.stopPropagation()">
-                <div class="slot-placeholder" id="slot2-ph">
-                  <div class="slot-icon">☀️</div>
-                  <div>Click to upload sunspot image</div>
-                  <div class="slot-label">Choose Image</div>
+              <div id="flare-flux-chart-wrap" style="text-align:center;margin-top:6px;">
+                <img id="flare-flux-chart-img" alt="X-ray flux history chart"
+                  style="display:none;max-width:100%;border:1px solid #ccc;">
+                <div id="flare-flux-chart-empty" style="font-size:11px;color:#888;font-style:italic;padding:10px;">
+                  No flux chart published yet.
                 </div>
-                <img class="slot-preview" id="slot2-img" alt="Sunspot image">
               </div>
-              <div class="article-text" style="margin-top:6px;">
-                Legault took this picture on May 24th using an H-alpha filter tuned to the glow of hydrogen plasma,
-                showing the seething magnetic canopy above the sunspot. Sunspot 4446 is the formerly-giant farside
-                sunspot first seen last week by Solar Orbiter. It has decayed since then, but its remains still look
-                potent.
-              </div>
-              <div class="article-text">
-                <b>Reversed polarity:</b> One of the sunspot groups in the region has reversed polarity — its magnetic
-                field is oriented opposite to what <a href="https://adsabs.harvard.edu/full/1925ApJ....62..270H"
-                  target="_blank">Hale's Law</a> predicts for Solar Cycle 25. Studies show about <b>3% of all
-                  sunspots</b> violate Hale's Law, and reversed polarity sunspots are <b>twice as likely</b> to develop
-                complex magnetic fields and explode. A farside X-flare could be in the offing. Stay tuned.
-              </div>
-              <div style="font-size:11px; margin-top:4px;">
-                <b>Solar flare alerts:</b> <a href="https://spaceweatheralerts.com/" target="_blank">SMS Text</a>
-              </div>
+              <div style="font-size:10px;color:#888;text-align:right;margin-top:2px;" id="flare-flux-chart-updated"></div>
             </div>
 
             <hr style="border:none;border-top:1px solid #cccccc;margin:8px 0;">

@@ -202,6 +202,149 @@ async function loadStormPrediction() {
   }
 }
 
+// ── SOLAR FLARE FORECAST (ISRO Aditya-L1 flare predictor, via Supabase) ──
+async function loadFlareForecast() {
+  const section = document.getElementById('flare-forecast-section');
+  if (typeof supabase === 'undefined' || !section) return;
+  try {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const { data, error } = await sb
+      .from('flare_predictions')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (error || !data || data.length === 0) return; // nothing published yet — leave section hidden
+
+    const row = data[0];
+
+    // "none"/"None"/"N/A"-shaped values mean "nothing at this level" — filter
+    // case-insensitively rather than an exact string match, since the source
+    // API doesn't guarantee one casing.
+    function isBlank(v) {
+      if (v == null) return true;
+      const s = String(v).trim().toLowerCase();
+      return s === '' || s === 'none' || s === 'n/a' || s.startsWith('none (');
+    }
+    function pct(v) { return (v == null) ? 'N/A' : (Math.round(v * 10) / 10) + '%'; }
+
+    const el_class   = document.getElementById('flare-current-class');   if (el_class)   el_class.textContent   = row.current_class ?? 'N/A';
+    const el_meaning = document.getElementById('flare-class-meaning');   if (el_meaning) el_meaning.textContent = row.class_meaning ? '(' + row.class_meaning + ')' : '';
+    const el_risk    = document.getElementById('flare-risk-level');      if (el_risk)    el_risk.textContent    = row.risk_level ? '· ' + row.risk_level : '';
+    const el_regions = document.getElementById('flare-active-regions');  if (el_regions) el_regions.textContent = row.active_regions_count ?? 'N/A';
+
+    const gp = row.global_probabilities || {};
+    const el_cprobs = document.getElementById('flare-current-probs');
+    if (el_cprobs) {
+      el_cprobs.textContent = 'C ' + pct(gp.c_probability_pct) + ' / M ' + pct(gp.m_probability_pct) + ' / X ' + pct(gp.x_probability_pct);
+    }
+
+    // Nowcast — has its own c/m/x_class_probability_pct fields
+    const nowcastBody = document.getElementById('flare-nowcast-body');
+    if (nowcastBody) {
+      const nc = row.nowcast;
+      if (nc) {
+        nowcastBody.textContent = 'C ' + pct(nc.c_class_probability_pct) + ' / M ' + pct(nc.m_class_probability_pct) + ' / X ' + pct(nc.x_class_probability_pct)
+          + (nc.risk_level ? ' — ' + nc.risk_level : '');
+      } else {
+        nowcastBody.textContent = 'No nowcast published.';
+      }
+    }
+
+    // Extended forecast — array of {time_horizon, c/m/x_class_chance_pct}, one line per horizon
+    const forecastBody = document.getElementById('flare-forecast-body');
+    if (forecastBody) {
+      const fc = row.forecast;
+      if (Array.isArray(fc) && fc.length) {
+        forecastBody.innerHTML = fc.map(function (f) {
+          return (f.time_horizon || (f.hours_ahead + 'h')) + ': C ' + pct(f.c_class_chance_pct) + ' / M ' + pct(f.m_class_chance_pct) + ' / X ' + pct(f.x_class_chance_pct);
+        }).join('<br>');
+      } else {
+        forecastBody.textContent = 'No extended forecast published.';
+      }
+    }
+
+    // Ensemble forecast — array of {time_horizon, combined: {class: probability}}
+    const ensembleBody = document.getElementById('flare-ensemble-body');
+    if (ensembleBody) {
+      const ens = row.ensemble;
+      if (Array.isArray(ens) && ens.length) {
+        ensembleBody.innerHTML = ens.map(function (e) {
+          const combined = e.combined || {};
+          const parts = Object.keys(combined).map(function (k) { return k + ' ' + pct(combined[k] * (combined[k] <= 1 ? 100 : 1)); });
+          return (e.time_horizon || (e.hours_ahead + 'h')) + ': ' + (parts.length ? parts.join(' / ') : (e.flare_class + ' ' + pct(e.probability)));
+        }).join('<br>');
+      } else {
+        ensembleBody.textContent = 'No ensemble forecast published.';
+      }
+    }
+
+    const el_cme = document.getElementById('flare-cme');
+    if (el_cme) {
+      if (row.cme_earth_directed_count) { el_cme.textContent = '☄️ ' + row.cme_earth_directed_count + ' Earth-directed CME(s) of ' + row.cme_total_count + ' tracked'; el_cme.style.display = 'block'; }
+      else { el_cme.style.display = 'none'; }
+    }
+
+    const el_impact = document.getElementById('flare-earth-impact');
+    if (el_impact) {
+      const impact = row.earth_impact_today || {};
+      const parts = [];
+      ['radio_blackout', 'radiation_storm', 'geomagnetic_storm'].forEach(function (key) {
+        const detail = impact[key];
+        if (detail && !isBlank(detail.text)) parts.push(detail.text);
+      });
+      if (parts.length) { el_impact.textContent = '🌍 ' + parts.join('; '); el_impact.style.display = 'block'; }
+      else { el_impact.style.display = 'none'; }
+    }
+
+    const el_watch = document.getElementById('flare-storm-watch');
+    if (el_watch) {
+      const watches = row.storm_watches;
+      if (Array.isArray(watches) && watches.length) {
+        const text = watches.slice(0, 2).map(function (w) {
+          if (typeof w === 'string') return w;
+          const days = Array.isArray(w.daily_forecast)
+            ? w.daily_forecast.map(function (d) { return d.day + ': ' + d.level; }).join(', ')
+            : '';
+          return (w.peak_category ? w.peak_category + ' watch' : 'Storm watch') + (days ? ' — ' + days : '');
+        }).join(' | ');
+        el_watch.textContent = '⚠️ ' + text;
+        el_watch.style.display = 'block';
+      } else {
+        el_watch.style.display = 'none';
+      }
+    }
+
+    const el_updated = document.getElementById('flare-forecast-updated');
+    if (el_updated) el_updated.textContent = 'Updated: ' + utcTime(row.created_at);
+
+    section.style.display = 'block';
+  } catch (e) {
+    // flare_predictions table doesn't exist yet, or fetch failed — leave section hidden, don't break the page
+  }
+}
+
+// ── FLARE FLUX CHART (image, uploaded by the flare predictor's GitHub Action) ──
+function loadFlareFluxChart() {
+  const img   = document.getElementById('flare-flux-chart-img');
+  const empty = document.getElementById('flare-flux-chart-empty');
+  const updated = document.getElementById('flare-flux-chart-updated');
+  if (typeof SUPABASE_URL === 'undefined' || !img) return;
+
+  const url = SUPABASE_URL + '/storage/v1/object/public/flare_charts/latest_flare_flux.png?t=' + Date.now();
+  const probe = new Image();
+  probe.onload = function () {
+    img.src = url;
+    img.style.display = 'inline-block';
+    if (empty) empty.style.display = 'none';
+    if (updated) updated.textContent = 'Chart updated: ' + utcTime(new Date().toISOString());
+  };
+  probe.onerror = function () {
+    img.style.display = 'none';
+    if (empty) empty.style.display = 'block';
+  };
+  probe.src = url;
+}
+
 // ── DST FORECAST-VS-ACTUAL CHART (image, uploaded by the predictor's GitHub Action) ──
 function loadDstForecastChart() {
   const img   = document.getElementById('dst-forecast-chart-img');
